@@ -19,7 +19,7 @@ async function jpm() {
                 `)
             );
             console.log("Available commands: ")
-            console.log(Object.values(Command).join(", "))
+            console.log(`[ ${Object.keys(Command).join(", ")} ]`)
         })
         .parse(process.argv);
 
