@@ -13,7 +13,7 @@ const { downloadArtifact } = require("../utils/downloadArtifact");
 const { exec } = require("../utils/exec");
 
 const postinstall = () => {
-    exec("jpmc run postinstall")
+    exec("jpm run postinstall")
 }
 
 async function add(artifact) {
