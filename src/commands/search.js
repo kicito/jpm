@@ -6,9 +6,11 @@ const { JPM_ENDPOINT } = require("../constants/jpmEndpoint")
 async function search(query) {
     const response = await fetch(`${JPM_ENDPOINT}/pkgs/search/${query}`)
 
-    const { packages } = await response.json()
-
-    console.log(util.inspect(packages, false, null, true))
+    if (response.ok) {
+        const { packages } = await response.json()
+        console.log(response)
+        console.log(util.inspect(packages, false, null, true))
+    } else throw new Error("Error connecting to JPM")
 
 }
 
