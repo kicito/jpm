@@ -29,13 +29,14 @@ async function execute(command, args) {
                 `${expArgs[0]}${expArgs.slice(1).map(ea => `, or ${ea}`).join("")}` +
                 `; but got ${args.length}: ${[...args.slice(1)]}`)
         }
+        return true
     }
 
-    // console.log({ operation, expectedArgs, args })
     const [operation, expectedArgs] = Command[command]
+    // console.log({ operation, expectedArgs, args })
 
     operation
-        ? checkArgs(expectedArgs) && operation()
+        ? checkArgs(expectedArgs) && operation(...args)
         : console.log("Command not found: " + command + "\nRun --help for a list of available commands")
 
 }
