@@ -19,7 +19,7 @@ const Command = { // [operation, expectedArgs]
     login: [login, [0]],
     logout: [logout, [0]],
     search: [search, [1]],
-    "dump-cache": [dumpCache, 0]
+    "dump-cache": [dumpCache, [0]]
 }
 
 async function execute(command, args) {
