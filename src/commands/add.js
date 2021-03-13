@@ -16,8 +16,9 @@ const postinstall = () => {
     exec("jpmc run postinstall")
 }
 
+async function add(artifact) {
+    const [artifactName, version] = artifact.split("^")
 
-async function add({ artifactName, version }) {
     try {
         if (!JPM_JSON.exists()) throw new Error("No jpm.json found in this folder.")
 

@@ -5,12 +5,13 @@ const fetch = require("node-fetch")
 const { JPM_ENDPOINT } = require('../constants/jpmEndpoint')
 const { JPM_CACHE } = require('../utils/jpmCache')
 
-async function login({ email, password }) {
+async function login(email, password) {
 
     if (!email || !password) throw new Error("Provide credentials")
 
     // email = 'hello@luisanton.io'
     // password = 'password'
+
     const response = await fetch(`${JPM_ENDPOINT}/users/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

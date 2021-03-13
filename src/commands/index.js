@@ -16,7 +16,7 @@ const Command = { // [operation, expectedArgs]
     remove: [remove, [1]],
     run: [run, [1]],
     publish: [publish, [0]],
-    login: [login, [0]],
+    login: [login, [2]],
     logout: [logout, [0]],
     search: [search, [1]],
     "dump-cache": [dumpCache, [0]]
@@ -36,7 +36,7 @@ async function execute(command, args) {
     // console.log({ operation, expectedArgs, args })
 
     operation
-        ? checkArgs(expectedArgs) && operation(...args)
+        ? checkArgs(expectedArgs) && await operation(...args)
         : console.log("Command not found: " + command + "\nRun --help for a list of available commands")
 
 }
