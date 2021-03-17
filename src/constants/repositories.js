@@ -1,3 +1,3 @@
-const REPOSITORIES = ['npm', 'mvn', 'jpm']
+const REPOSITORIES = ['npm', 'mvn']
 
 module.exports = { REPOSITORIES }
