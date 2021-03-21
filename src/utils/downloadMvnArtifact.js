@@ -6,9 +6,17 @@ const filename =
     ({ artifactId, version }) =>
         `${artifactId}-${version}.jar`
 
+const pomName =
+    ({ artifactId, version }) =>
+        `${artifactId}-${version}.pom`
+
 const groupPath =
     ({ groupId, artifactId, version }) =>
         `${groupId.replace(/\./g, '/')}/${artifactId}/${version}`
+
+const makeArtifactPomUrl =
+    (artifact) =>
+        `https://repo1.maven.org/maven2/${groupPath(artifact)}/${pomName(artifact)}`;
 
 
 const makeArtifactUrl =
@@ -19,10 +27,10 @@ const lib = "./lib/"
 
 const downloadMvnArtifact = async (artifact) => {
     const artifactUrl = makeArtifactUrl(artifact)
-    const res = await fetch(artifactUrl);
+    const res = await fetch(artifactUrl)
 
     if (res.status === 404)
-        throw new Error("Package not found @ Maven")
+        throw new Error(`Artifact ${artifact.groupId}:${artifact.artifactId}, version ${artifact.version} not found @ Maven`)
     else if (!res.ok)
         throw new Error("Error connecting to Maven")
 
@@ -42,4 +50,4 @@ const downloadMvnArtifact = async (artifact) => {
     })
 }
 
-module.exports = { downloadMvnArtifact }
+module.exports = { downloadMvnArtifact, makeArtifactPomUrl }
