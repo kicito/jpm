@@ -4,19 +4,22 @@ const fs = require("fs-extra")
 
 const { PACKAGE_DIR } = require('../constants/packageDir')
 
-async function downloadArtifact(artifactName, artifactUrl) {
+async function downloadArtifact({ artifactName, artifactUrl }) {
+
+    console.log({ artifactName, artifactUrl })
+
     const res = await fetch(artifactUrl);
 
     return new Promise((resolve, reject) => {
-        const filePath = path.join(PACKAGE_DIR, `${artifactName}.zip`)
-        const fileStream = fs.createWriteStream(filePath);
+        !fs.existsSync(PACKAGE_DIR) && fs.mkdirSync(PACKAGE_DIR)
+
+        const filePath = path.join(PACKAGE_DIR, `${artifactName}.tgz`)
+        const fileStream = fs.createWriteStream(filePath)
+
         res.body.pipe(fileStream);
-        res.body.on("error", (err) => {
-            reject(err);
-        });
-        fileStream.on("finish", function () {
-            resolve(filePath);
-        });
+
+        res.body.on("error", err => reject(err));
+        fileStream.on("finish", () => resolve(filePath));
     });
 }
 
