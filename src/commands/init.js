@@ -17,30 +17,28 @@ async function init() {
             ? (await parsePom({ filePath: 'pom.xml' }))
             : {}
 
-    const mvnPeers =
-        !Object.keys(mvn).length
-            ? {}
-            : await (async () => {
-                let _mvnPeers = {}
+    let mvnPeers = {}
+    const mvnEntries = Object.entries(mvn)
 
-                await Promise.all(
-                    Object.entries(mvn).map(
-                        async ([key, version]) => {
-                            const [groupId, artifactId] = key.split(":")
+    const updateInitPeers = async entries => {
+        for (let [artifact, version] of entries) {
+            const [groupId, artifactId] = artifact.split(":")
+            const parsedPom = await makeMvnArtifactJson({ groupId, artifactId, version })
 
-                            const parsedPom = makeMvnArtifactJson({ groupId, artifactId, version })
+            const newEntries = Object.entries(parsedPom)
 
-                            Object.keys(parsedPom).length > 0
-                                && (_mvnPeers = {
-                                    ..._mvnPeers,
-                                    [`${groupId}:${artifactId}`]: parsedPom
-                                })
-                        }
-                    )
-                )
+            if (newEntries.length > 0) {
+                mvnPeers = {
+                    ...mvnPeers,
+                    [`${groupId}:${artifactId}`]: parsedPom
+                }
+                await updateInitPeers(newEntries)
+            }
 
-                return _mvnPeers
-            })()
+        }
+    }
+
+    await updateInitPeers(mvnEntries)
 
     const npm = {}
 
