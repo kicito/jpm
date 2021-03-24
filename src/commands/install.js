@@ -7,16 +7,31 @@ async function install() {
     const jpmJson = JPM_JSON.read()
 
     for (let repo of REPOSITORIES) {
-        const depEntries = Object.entries(jpmJson.dependencies[repo])
+        const allPeers =
+            repo !== 'mvn'
+                ? {}
+                : Object.values(jpmJson.peerDependencies[repo])
+                    .reduce((a, c) => ({ ...a, ...c }), {})
 
-        for (let [artifactId, version] of depEntries) {
-            const adding = `${artifactId}${version !== LATEST_VERSION ? `:${version}` : ''}@${repo}`
+        const installEntries = [
+            [
+                [...Object.entries({ ...jpmJson.dependencies[repo] })],
+                { installPeers: false }
+            ],
+            [
+                [...Object.entries(allPeers)],
+                { installPeers: false, isPeer: true }
+            ]
+        ]
 
-            console.log({ adding })
-            await add(adding)
-        }
+        for (let [entries, config] of installEntries)
+            for (let [artifact, version] of entries)
+                await add(
+                    `${artifact}${version !== LATEST_VERSION ? `:${version}` : ''}@${repo}`,
+                    config
+                )
+
     }
-
 }
 
 module.exports = { install }
