@@ -1,3 +1,4 @@
+const chalk = require('chalk')
 const { init } = require("./init");
 const { remove } = require("./remove");
 const { run } = require("./run");
@@ -23,11 +24,17 @@ const Command = { // [operation, expectedArgs]
 }
 
 async function execute(command, args) {
+
+    if (!command) {
+        console.log(`Use ${chalk.green('jpm --help')} for the command list`)
+        return
+    }
+
     const checkArgs = expArgs => {
         if (!expArgs.includes(args.length)) {
             throw new Error("Expected number of arguments: " +
                 `${expArgs[0]}${expArgs.slice(1).map(ea => `, or ${ea}`).join("")}` +
-                `; but got ${args.length}: ${[...args.slice(1)]}`)
+                `; but got ${args.length}:${args.map(arg => ` ${arg}`)}`)
         }
         return true
     }
