@@ -1,7 +1,6 @@
 const { JPM_JSON } = require("../utils/jpmJson");
 const fs = require("fs-extra")
 const os = require("os");
-const { exec } = require("../utils/exec");
 const { execSync } = require("child_process");
 
 function publish() {
