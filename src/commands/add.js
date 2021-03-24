@@ -37,7 +37,7 @@ async function add(artifactRef, parentArtifact) {
         })()
 
         !parentArtifact && updateDependencies(repo, installedArtifact)
-        await updatePeers(repo, parentArtifact, installedArtifact)
+        await updatePeers(repo, installedArtifact)
 
         console.log(`Installed ${parentArtifact ? 'peer dependency' : ''}: ${installedArtifact}`)
 
