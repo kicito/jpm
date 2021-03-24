@@ -4,10 +4,13 @@ const { parsePom } = require("../utils/parsePom")
 const { makeArtifactPomUrl } = require("../utils/downloadMvnArtifact")
 const fetch = require("node-fetch")
 const { makeMvnArtifactJson } = require("../utils/makeMvnArtifactJson")
+const { LIB_DIR } = require("../constants/lib")
 
 async function init() {
 
     if (JPM_JSON.exists()) throw new Error("Found jpm.json already initiated in this folder.")
+
+    fs.existsSync(LIB_DIR) && fs.removeSync(LIB_DIR)
 
     const mvn =
         fs.existsSync('pom.xml')
