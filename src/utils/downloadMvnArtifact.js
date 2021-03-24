@@ -1,6 +1,7 @@
 const fetch = require("node-fetch")
 const fs = require("fs-extra")
 const path = require("path")
+const LIB_DIR = require("../constants/lib")
 
 const filename =
     ({ artifactId, version }) =>
@@ -23,8 +24,6 @@ const makeArtifactUrl =
     (artifact) =>
         `https://repo1.maven.org/maven2/${groupPath(artifact)}/${filename(artifact)}`;
 
-const lib = "./lib/"
-
 const downloadMvnArtifact = async (artifact) => {
     const artifactUrl = makeArtifactUrl(artifact)
     const res = await fetch(artifactUrl)
@@ -35,9 +34,9 @@ const downloadMvnArtifact = async (artifact) => {
         throw new Error("Error connecting to Maven")
 
     return new Promise((resolve, reject) => {
-        !fs.existsSync(lib) && fs.mkdirSync(lib)
+        !fs.existsSync(LIB_DIR) && fs.mkdirSync(LIB_DIR)
 
-        const artifactPath = path.join(lib, filename(artifact))
+        const artifactPath = path.join(LIB_DIR, filename(artifact))
         const fileStream = fs.createWriteStream(artifactPath)
 
         res.body.pipe(fileStream);
