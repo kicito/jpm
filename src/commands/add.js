@@ -15,7 +15,7 @@ const { makeMvnArtifactJson } = require("../utils/makeMvnArtifactJson")
 
 const tar = require("tar");
 
-async function add(artifactRef, parentArtifact) {
+async function add(artifactRef, { isPeer, installPeers }) {
 
     try {
         if (!JPM_JSON.exists()) throw new Error("No jpm.json found in this folder.")
@@ -36,12 +36,14 @@ async function add(artifactRef, parentArtifact) {
             }
         })()
 
-        !parentArtifact && updateDependencies(repo, installedArtifact)
-        await updatePeers(repo, installedArtifact)
+        !isPeer && updateDependencies(repo, installedArtifact)
 
-        console.log(`Installed ${parentArtifact ? 'peer dependency' : ''}: ${installedArtifact}`)
+        console.log(`Installed ${isPeer ? 'peer dependency' : ''}: ${installedArtifact}`)
 
-        await addArtifactDependencies({ repo, artifactJson })
+        if (installPeers) {
+            await updatePeers(repo, installedArtifact)
+            await addArtifactDependencies({ repo, artifactJson })
+        }
 
         console.log('Done!')
 
@@ -54,7 +56,7 @@ async function add(artifactRef, parentArtifact) {
 async function addArtifactDependencies({ repo, artifactJson }) {
 
     Object.entries(artifactJson).forEach(([artifactId, version]) => {
-        add(`${artifactId}${version !== LATEST_VERSION ? `:${version}` : ''}@${repo}`, { artifactId, artifactJson })
+        add(`${artifactId}${version !== LATEST_VERSION ? `:${version}` : ''}@${repo}`, { isPeer: true, installPeers: true })
     })
 
 }
