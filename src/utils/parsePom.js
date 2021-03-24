@@ -13,11 +13,27 @@ const parsePom = (opts) =>
 
                 let mvnDependencies = {}
 
-                const parseDep = ({ groupid: groupId, scope, version, artifactid: artifactId }) => {
-                    if (groupId !== "org.jolie-lang" && !["test", "compile"].includes(scope)) {
+                const parseDep = (dependency) => {
+                    const {
+                        groupid: groupId,
+                        artifactid: artifactId,
+                        scope, optional, version
+                    } = dependency
+
+                    if (!optional
+                        && groupId !== "org.jolie-lang"
+                        && !["test", "compile"].includes(scope)) {
                         mvnDependencies[`${groupId}:${artifactId}`] = version
                     }
                 }
+
+                const { pomObject } = pomResponse
+
+                if (!pomObject) {
+                    console.log({ pomResponse })
+                    return
+                }
+
                 const { dependencies } = pomResponse.pomObject.project
 
                 if (dependencies) {
