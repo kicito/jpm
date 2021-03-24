@@ -4,7 +4,7 @@ const glob = require("glob")
 const fetch = require("node-fetch");
 const FormData = require('form-data');
 
-const { JPM_ENDPOINT } = require('../constants/jpmEndpoint');
+const JPM_ENDPOINT = require('../constants/jpmEndpoint');
 const { JPM_CACHE } = require('../utils/jpmCache');
 const { JPM_JSON } = require("../utils/jpmJson");
 

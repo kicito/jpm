@@ -1,3 +1,3 @@
 const LIB_DIR = "./lib/"
 
-module.exports = { LIB_DIR }
+module.exports = LIB_DIR

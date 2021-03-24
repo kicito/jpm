@@ -4,9 +4,9 @@ const path = require("path")
 const fs = require("fs-extra")
 
 const { JPM_JSON } = require("../utils/jpmJson")
-const { JPM_ENDPOINT } = require("../constants/jpmEndpoint")
-const { PACKAGE_DIR } = require("../constants/packageDir")
-const { REPOSITORIES } = require("../constants/repositories")
+const JPM_ENDPOINT = require("../constants/jpmEndpoint")
+const PACKAGE_DIR = require("../constants/packageDir")
+const REPOSITORIES = require("../constants/repositories")
 
 const { updateJpmJson } = require("../utils/updateJpmJson")
 const { downloadArtifact } = require("../utils/downloadJpmArtifact");

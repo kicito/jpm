@@ -2,7 +2,7 @@ const fs = require('fs-extra')
 const os = require("os")
 const fetch = require("node-fetch")
 
-const { JPM_ENDPOINT } = require('../constants/jpmEndpoint')
+const JPM_ENDPOINT = require('../constants/jpmEndpoint')
 const { JPM_CACHE } = require('../utils/jpmCache')
 
 async function login(email, password) {

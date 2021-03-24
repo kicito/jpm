@@ -4,7 +4,7 @@ const { parsePom } = require("../utils/parsePom")
 const { makeArtifactPomUrl } = require("../utils/downloadMvnArtifact")
 const fetch = require("node-fetch")
 const { makeMvnArtifactJson } = require("../utils/makeMvnArtifactJson")
-const { LIB_DIR } = require("../constants/lib")
+const LIB_DIR = require("../constants/lib")
 
 async function init() {
 

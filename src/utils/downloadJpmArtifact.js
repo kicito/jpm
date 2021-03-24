@@ -2,7 +2,7 @@ const path = require("path");
 const fetch = require("node-fetch")
 const fs = require("fs-extra")
 
-const { PACKAGE_DIR } = require('../constants/packageDir')
+const PACKAGE_DIR = require('../constants/packageDir')
 
 async function downloadArtifact(artifactName, artifactUrl) {
     const res = await fetch(artifactUrl);

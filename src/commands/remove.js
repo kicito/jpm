@@ -1,4 +1,4 @@
-const { PACKAGE_DIR } = require('../constants/packageDir');
+const PACKAGE_DIR = require('../constants/packageDir');
 const { JPM_JSON } = require('../utils/jpmJson');
 const fs = require("fs-extra")
 
