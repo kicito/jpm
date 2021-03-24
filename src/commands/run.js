@@ -1,5 +1,6 @@
-const { exec } = require("../utils/exec")
 const { JPM_JSON } = require("../utils/jpmJson")
+const { execSync } = require("child_process");
+
 
 function run(script) {
     if (!script) throw new Error("No script specified")
@@ -8,7 +9,7 @@ function run(script) {
 
     if (!command) throw new Error(`Invalid script: ${script}`)
 
-    exec(command)
+    execSync(command, { stdio: [0, 1, 2] })
 }
 
 module.exports = { run }
