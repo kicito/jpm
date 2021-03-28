@@ -1,8 +1,6 @@
-const { JPM_JSON } = require("../utils/jpmJson")
 const fs = require("fs-extra")
+const { JPM_JSON } = require("../utils/jpmJson")
 const { parsePom } = require("../utils/parsePom")
-const { makeArtifactPomUrl } = require("../utils/downloadMvnArtifact")
-const fetch = require("node-fetch")
 const { makeMvnArtifactJson } = require("../utils/makeMvnArtifactJson")
 const LIB_DIR = require("../constants/lib")
 
@@ -12,13 +10,16 @@ async function init() {
 
     fs.existsSync(LIB_DIR) && fs.removeSync(LIB_DIR)
 
-    const mvn =
-        fs.existsSync('pom.xml')
-            ? (await parsePom({ filePath: 'pom.xml' }))
-            : {}
+    let distJar, mvnPeers, parsedPom = {}
 
-    let mvnPeers = {}
-    const mvnEntries = Object.entries(mvn)
+    if (fs.existsSync('pom.xml')) {
+        parsedPom = await parsePom({ filePath: 'pom.xml' })
+        const { artifactid, version } = parsedPom.pomObject.project
+        distJar = `target/${artifactid}-${version}.jar`
+    }
+
+    const mvn = parsedPom.dependencies
+    const mvnEntries = mvn ? Object.entries(mvn) : []
 
     const updateInitPeers = async entries => {
         for (let [artifact, version] of entries) {
@@ -28,6 +29,7 @@ async function init() {
             const newEntries = Object.entries(parsedPom)
 
             if (newEntries.length > 0) {
+                !mvnPeers && (mvnPeers = {})
                 mvnPeers = {
                     ...mvnPeers,
                     [`${groupId}:${artifactId}`]: parsedPom
@@ -49,14 +51,13 @@ async function init() {
         version: '1.0.0',
         license: "ISC",
         keywords: [],
-        dependencies: { mvn, npm },
-        peerDependencies: {
-            mvn: mvnPeers
-        },
         scripts: {
             "jolive": "npx nodemon --exec jolie ./server.ol",
             "clean": "rm ./hs_err_pid*"
-        }
+        },
+        distJar,
+        dependencies: { mvn, npm },
+        mvnPeers
     }
     JPM_JSON.write(jpmJson)
 

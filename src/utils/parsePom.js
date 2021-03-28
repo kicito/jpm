@@ -44,7 +44,10 @@ const parsePom = (opts) =>
                         : parseDep(dependencies.dependency)
                 }
 
-                resolve(mvnDependencies)
+                resolve({
+                    dependencies: mvnDependencies,
+                    pomObject
+                })
 
             })
         }
