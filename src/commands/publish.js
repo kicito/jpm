@@ -7,6 +7,8 @@ function publish() {
     const packageJson = JPM_JSON.read()
 
     delete packageJson.dependencies
+    delete packageJson.mvnPeers
+    delete packageJson.distJar
     delete packageJson.scripts
 
     fs.writeFileSync('package.json', JSON.stringify(packageJson, null, "   ") + os.EOL)
