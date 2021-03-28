@@ -1,20 +1,25 @@
 const fetch = require("node-fetch");
 const fs = require("fs-extra")
+const semver = require("semver");
 
 const { JPM_JSON } = require("../../utils/jpmJson")
+const LIB_DIR = require("../../constants/lib");
+const LATEST_VERSION = require("../../constants/latestVersion");
 const PACKAGE_DIR = require("../../constants/packageDir")
 const REPOSITORIES = require("../../constants/repositories")
 
 const { updateDependencies, updateMvnPeers } = require("./updateJpmJson")
 const { downloadMvnArtifact } = require("./downloadMvnArtifact");
 const { downloadArtifact } = require("./downloadArtifact");
-const semver = require("semver");
 
 const { makeMvnArtifactJson } = require("../../utils/makeMvnArtifactJson")
 
 const tar = require("tar");
 
-async function add(artifactRef, { isPeer = false, installPeers = true, updateJpmJson = true } = {}) {
+async function add(artifactRef, config = {}) {
+
+    const { isPeer = false, installPeers = true, updateJpmJson = true } = config
+    // console.log(config)
 
     try {
         if (!JPM_JSON.exists()) throw new Error("No jpm.json found in this folder.")
@@ -54,24 +59,20 @@ async function add(artifactRef, { isPeer = false, installPeers = true, updateJpm
 
 module.exports = { add }
 
-const { install } = require('../install');
-const LIB_DIR = require("../../constants/lib");
-
 async function addArtifactDependencies({ repo, artifactJson }) {
 
-    repo === "mvn"
-        ? Object.entries(artifactJson).forEach(([artifactId, version]) => {
+    const { install } = require("../install")
+
+    if (repo === "mvn") {
+        for (let [artifactId, version] of Object.entries(artifactJson)) {
             const config = {
                 isPeer: true,
                 installPeers: true,
                 updateJpmJson: false
             }
-
-            console.log(config)
-            add(`${artifactId}${version !== LATEST_VERSION ? `:${version}` : ''}@${repo}`, config)
-        })
-        : install(artifactJson)
-
+            await add(`${artifactId}${version !== LATEST_VERSION ? `:${version}` : ''}@${repo}`, config)
+        }
+    } else install(artifactJson)
 }
 
 async function addMvnArtifact(artifact) {
@@ -119,6 +120,8 @@ async function addNpmArtifact(artifact) {
     const archivePath = await downloadArtifact({ artifactName, artifactUrl: tarball })
     const artifactDir = `${PACKAGE_DIR}/${artifactName}`
 
+    fs.existsSync(artifactDir) && fs.removeSync(artifactDir, { recursive: true })
+
     fs.mkdirSync(artifactDir, { recursive: true })
     const stream = fs.createReadStream(archivePath).pipe(
         tar.x({ strip: 1, C: artifactDir, sync: true })
@@ -135,7 +138,18 @@ async function addNpmArtifact(artifact) {
     // Move distJar to lib...
     if (artifactJson.distJar) {
         !fs.existsSync(LIB_DIR) && fs.mkdirSync(LIB_DIR)
-        fs.moveSync(`${artifactDir}/dist/${artifactJson.distJar}`, `${LIB_DIR}/${artifactJson.distJar}`)
+        const distJarPath = `${LIB_DIR}/${artifactJson.distJar}`
+
+        fs.existsSync(distJarPath) && fs.removeSync(distJarPath)
+
+        const dist = `${artifactDir}/dist`
+
+        if (fs.existsSync(dist)) {
+            fs.moveSync(`${artifactDir}/dist/${artifactJson.distJar}`, distJarPath)
+            fs.removeSync(`${artifactDir}/dist`)
+        }
+
+        fs.removeSync(`${artifactDir}/package.json`)
     }
 
     return { installedArtifact: `${artifactName}:${version}`, artifactJson }
