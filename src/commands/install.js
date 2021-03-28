@@ -3,14 +3,14 @@ const REPOSITORIES = require("../constants/repositories")
 const { JPM_JSON } = require("../utils/jpmJson")
 const { add } = require("./add")
 
-async function install() {
-    const jpmJson = JPM_JSON.read()
+async function install(_jpmJson) {
+    const jpmJson = _jpmJson || JPM_JSON.read()
 
     for (let repo of REPOSITORIES) {
         const allPeers =
             repo !== 'mvn'
                 ? {}
-                : Object.values(jpmJson.peerDependencies[repo])
+                : Object.values(jpmJson.mvnPeers)
                     .reduce((a, c) => ({ ...a, ...c }), {})
 
         const installEntries = [
