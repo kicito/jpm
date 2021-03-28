@@ -15,7 +15,7 @@ async function init() {
     if (fs.existsSync('pom.xml')) {
         parsedPom = await parsePom({ filePath: 'pom.xml' })
         const { artifactid, version } = parsedPom.pomObject.project
-        distJar = `target/${artifactid}-${version}.jar`
+        distJar = `${artifactid}-${version}.jar`
     }
 
     const mvn = parsedPom.dependencies

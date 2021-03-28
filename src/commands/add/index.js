@@ -14,7 +14,7 @@ const { makeMvnArtifactJson } = require("../../utils/makeMvnArtifactJson")
 
 const tar = require("tar");
 
-async function add(artifactRef, { isPeer = false, installPeers = true } = {}) {
+async function add(artifactRef, { isPeer = false, installPeers = true, updateJpmJson = true } = {}) {
 
     try {
         if (!JPM_JSON.exists()) throw new Error("No jpm.json found in this folder.")
@@ -35,7 +35,7 @@ async function add(artifactRef, { isPeer = false, installPeers = true } = {}) {
             }
         })()
 
-        !isPeer && updateDependencies(repo, installedArtifact)
+        !isPeer && updateJpmJson && updateDependencies(repo, installedArtifact)
 
         console.log(`Installed${isPeer ? ' peer dependency' : ''}: ${installedArtifact}`)
 
@@ -54,13 +54,21 @@ async function add(artifactRef, { isPeer = false, installPeers = true } = {}) {
 
 module.exports = { add }
 
-const { install } = require('../install')
+const { install } = require('../install');
+const LIB_DIR = require("../../constants/lib");
 
 async function addArtifactDependencies({ repo, artifactJson }) {
 
     repo === "mvn"
         ? Object.entries(artifactJson).forEach(([artifactId, version]) => {
-            add(`${artifactId}${version !== LATEST_VERSION ? `:${version}` : ''}@${repo}`, { isPeer: true, installPeers: true })
+            const config = {
+                isPeer: true,
+                installPeers: true,
+                updateJpmJson: false
+            }
+
+            console.log(config)
+            add(`${artifactId}${version !== LATEST_VERSION ? `:${version}` : ''}@${repo}`, config)
         })
         : install(artifactJson)
 
@@ -109,18 +117,26 @@ async function addNpmArtifact(artifact) {
     const { tarball } = body.versions[version].dist
 
     const archivePath = await downloadArtifact({ artifactName, artifactUrl: tarball })
-    const archiveDir = `${PACKAGE_DIR}/${artifactName}`
+    const artifactDir = `${PACKAGE_DIR}/${artifactName}`
 
-    fs.mkdirSync(archiveDir, { recursive: true })
-    const stream = fs.createReadStream(archivePath).pipe(tar.x({ strip: 1, C: archiveDir, sync: true }))
+    fs.mkdirSync(artifactDir, { recursive: true })
+    const stream = fs.createReadStream(archivePath).pipe(
+        tar.x({ strip: 1, C: artifactDir, sync: true })
+    )
 
     await new Promise((resolve) => stream.on('end', () => resolve()))
 
     fs.removeSync(archivePath)
 
-    updateJpmJson('npm', artifactName, version)
+    updateDependencies('npm', `${artifactName}:${version}`)
 
-    const artifactJson = fs.existsSync(`${archiveDir}/jpm.json`) && fs.readJsonSync(`${archiveDir}/jpm.json`)
+    const artifactJson = fs.existsSync(`${artifactDir}/jpm.json`) && fs.readJsonSync(`${artifactDir}/jpm.json`)
+
+    // Move distJar to lib...
+    if (artifactJson.distJar) {
+        !fs.existsSync(LIB_DIR) && fs.mkdirSync(LIB_DIR)
+        fs.moveSync(`${artifactDir}/dist/${artifactJson.distJar}`, `${LIB_DIR}/${artifactJson.distJar}`)
+    }
 
     return { installedArtifact: `${artifactName}:${version}`, artifactJson }
 }

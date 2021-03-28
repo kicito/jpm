@@ -17,6 +17,7 @@ function publish() {
     execSync("npm publish", { stdio: [0, 1, 2] })
 
     fs.removeSync("package.json")
+    fs.existsSync("package-lock.json") && fs.removeSync("package-lock.json")
 
 }
 

@@ -16,11 +16,11 @@ async function install(_jpmJson) {
         const installEntries = [
             [
                 [...Object.entries({ ...jpmJson.dependencies[repo] })],
-                { installPeers: false }
+                {}
             ],
             [
                 [...Object.entries(allPeers)],
-                { installPeers: false, isPeer: true }
+                { isPeer: true }
             ]
         ]
 
@@ -28,7 +28,11 @@ async function install(_jpmJson) {
             for (let [artifact, version] of entries)
                 await add(
                     `${artifact}${version !== LATEST_VERSION ? `:${version}` : ''}@${repo}`,
-                    config
+                    {
+                        installPeers: false,
+                        updateJpmJson: !Boolean(_jpmJson),
+                        ...config
+                    }
                 )
 
     }

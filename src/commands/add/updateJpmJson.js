@@ -21,12 +21,7 @@ async function updateMvnPeers(installedArtifact, parsedPom) {
     const jpmJson = JPM_JSON.read()
 
     if (!jpmJson.mvnPeers) jpmJson.mvnPeers = {}
-
-    // if (!jpmJson.peerDependencies.mvn)
-    //     jpmJson.peerDependencies.mvn = {}
-
     const [groupId, artifactId] = installedArtifact.split(":")
-    // const parsedPom = await makeMvnArtifactJson({ groupId, artifactId, version })
 
     console.log({ parsedPom })
 
