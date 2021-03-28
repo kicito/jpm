@@ -10,7 +10,7 @@ async function install(_jpmJson) {
         const allPeers =
             repo !== 'mvn'
                 ? {}
-                : Object.values(jpmJson.mvnPeers)
+                : Object.values(jpmJson.mvnPeers || {})
                     .reduce((a, c) => ({ ...a, ...c }), {})
 
         const installEntries = [
@@ -29,7 +29,7 @@ async function install(_jpmJson) {
                 await add(
                     `${artifact}${version !== LATEST_VERSION ? `:${version}` : ''}@${repo}`,
                     {
-                        installPeers: false,
+                        installPeers: !Boolean(_jpmJson),
                         updateJpmJson: !Boolean(_jpmJson),
                         ...config
                     }
