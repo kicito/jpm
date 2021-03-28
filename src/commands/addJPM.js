@@ -8,8 +8,8 @@ const JPM_ENDPOINT = require("../constants/jpmEndpoint")
 const PACKAGE_DIR = require("../constants/packageDir")
 const REPOSITORIES = require("../constants/repositories")
 
-const { updateJpmJson } = require("../utils/updateJpmJson")
-const { downloadArtifact } = require("../utils/downloadJpmArtifact");
+const { updateJpmJson } = require("./add/updateJpmJson")
+const { downloadArtifact } = require("./add/downloadJpmArtifact");
 // const { postinstall } = require("../utils/postinstall.js")
 
 async function add(artifact) {
