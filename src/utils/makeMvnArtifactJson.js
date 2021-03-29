@@ -24,7 +24,7 @@ async function makeMvnArtifactJson({ groupId, artifactId, version }) {
         key => (parsedPom[key] = parseMvnVersion(parsedPom[key]))
     )
 
-    fs.removeSync(pomPath)
+    fs.unlinkSync(pomPath)
 
     return parsedPom
 
