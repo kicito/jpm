@@ -15,7 +15,9 @@ const makeArtifactPomUrl =
 
 async function makeMvnArtifactJson({ groupId, artifactId, version }) {
     const response = await fetch(makeArtifactPomUrl({ groupId, artifactId, version }))
-    const pomPath = `tmp-${groupId}:${artifactId}-pom.xml`
+    fse.mkdirSync(".tmp")
+
+    const pomPath = `.tmp/tmp-${groupId}:${artifactId}-pom.xml`
 
     await fse.writeFile(pomPath, await response.text())
 
@@ -26,7 +28,7 @@ async function makeMvnArtifactJson({ groupId, artifactId, version }) {
     )
 
     // fse.unlink(pomPath)
-    await fs.unlink(pomPath)
+    fse.removeSync(".tmp", { recursive: true })
 
     return parsedPom
 
