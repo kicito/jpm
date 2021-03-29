@@ -1,7 +1,10 @@
 const fs = require("fs-extra")
+const os = require("os");
+
 const { JPM_JSON } = require("../utils/jpmJson")
 const { parsePom } = require("../utils/parsePom")
 const { makeMvnArtifactJson } = require("../utils/makeMvnArtifactJson")
+
 const LIB_DIR = require("../constants/lib")
 
 async function init() {
@@ -60,6 +63,8 @@ async function init() {
         mvnPeers
     }
     JPM_JSON.write(jpmJson)
+
+    fs.writeFileSync('.npmignore', "lib/\ntarget/\n.settings/\n.classpath\n.project\nsrc/\npom.xml\npackages/\n.vscode/" + os.EOL)
 
 }
 

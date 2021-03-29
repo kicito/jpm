@@ -12,7 +12,6 @@ function publish() {
     delete packageJson.scripts
 
     fs.writeFileSync('package.json', JSON.stringify(packageJson, null, "   ") + os.EOL)
-    fs.writeFileSync('.npmignore', "lib/\ntarget/\n.settings/\n.classpath\n.project\nsrc/\npom.xml\npackages/\n.vscode/" + os.EOL)
 
     execSync("npm publish", { stdio: [0, 1, 2] })
 
