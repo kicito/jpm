@@ -1,4 +1,5 @@
-const fs = require("fs-extra");
+const fs = require("fs").promises
+const fse = require("fs-extra");
 const { parsePom } = require("./parsePom")
 const fetch = require("node-fetch")
 const { parseMvnVersion } = require("./parseMvnVersion");
@@ -16,7 +17,7 @@ async function makeMvnArtifactJson({ groupId, artifactId, version }) {
     const response = await fetch(makeArtifactPomUrl({ groupId, artifactId, version }))
     const pomPath = `tmp-${groupId}:${artifactId}-pom.xml`
 
-    await fs.writeFile(pomPath, await response.text())
+    await fse.writeFile(pomPath, await response.text())
 
     const { dependencies: parsedPom } = await parsePom({ filePath: pomPath })
 
@@ -24,7 +25,8 @@ async function makeMvnArtifactJson({ groupId, artifactId, version }) {
         key => (parsedPom[key] = parseMvnVersion(parsedPom[key]))
     )
 
-    fs.unlink(pomPath)
+    // fse.unlink(pomPath)
+    await fs.unlink(pomPath)
 
     return parsedPom
 
