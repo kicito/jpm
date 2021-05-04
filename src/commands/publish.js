@@ -13,7 +13,7 @@ function publish() {
 
     fs.writeFileSync('package.json', JSON.stringify(packageJson, null, "   ") + os.EOL)
 
-    execSync("npm publish", { stdio: [0, 1, 2] })
+    execSync("npm publish --access public", { stdio: [0, 1, 2] })
 
     fs.removeSync("package.json")
     fs.existsSync("package-lock.json") && fs.removeSync("package-lock.json")

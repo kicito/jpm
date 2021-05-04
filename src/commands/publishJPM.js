@@ -10,7 +10,7 @@ const { JPM_JSON } = require("../utils/jpmJson");
 
 const chalk = require('chalk');
 
-const NOT_LOGGED_IN = `Not logged in. Login first using: ${chalk.cyanBright('jpmc login <username> <password>')}`
+const NOT_LOGGED_IN = `Not logged in. Login first using: ${chalk.cyanBright('jpm login <username> <password>')}`
 
 function publishJPM() {
     if (!JPM_JSON.exists()) throw new Error("JPM not initialized")
