@@ -12,14 +12,13 @@ async function downloadArtifact({ artifactName, artifactUrl }) {
 
     return new Promise((resolve, reject) => {
         !fs.existsSync(PACKAGE_DIR) && fs.mkdirSync(PACKAGE_DIR)
-
         const filePath = path.join(PACKAGE_DIR, `${artifactName}.tgz`)
+        !fs.existsSync(path.dirname(filePath)) && fs.mkdirSync(path.dirname(filePath))
         const fileStream = fs.createWriteStream(filePath)
+        res.body.pipe(fileStream)
 
-        res.body.pipe(fileStream);
-
-        res.body.on("error", err => reject(err));
-        fileStream.on("finish", () => resolve(filePath));
+        res.body.on("error", err => reject(err))
+        fileStream.on("finish", () => resolve(filePath))
     });
 }
 

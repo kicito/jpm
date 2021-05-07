@@ -100,7 +100,6 @@ async function getLatestArtifactVersion({ groupId, artifactId }) {
 
 async function addNpmArtifact(artifact) {
     const [artifactName, _version] = artifact.split(":")
-
     const response = await fetch(`https://registry.npmjs.org/${artifactName}`)
 
     if (response.status === 404)
@@ -116,9 +115,10 @@ async function addNpmArtifact(artifact) {
     if (!body.versions[version]) throw new Error("Specified version not found.")
 
     const { tarball } = body.versions[version].dist
-
+    
     const archivePath = await downloadArtifact({ artifactName, artifactUrl: tarball })
     const artifactDir = `${PACKAGE_DIR}/${artifactName}`
+    
 
     fs.existsSync(artifactDir) && fs.removeSync(artifactDir, { recursive: true })
 
