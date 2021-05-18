@@ -14,6 +14,8 @@ const { downloadArtifact } = require("./downloadArtifact");
 
 const { makeMvnArtifactJson } = require("../../utils/makeMvnArtifactJson")
 
+const { getLatestArtifactVersion } = require("../../utils/getLatestArtifactVersion")
+
 const tar = require("tar");
 
 async function add(artifactRef, config = {}) {
@@ -85,17 +87,6 @@ async function addMvnArtifact(artifact) {
     const artifactJson = await makeMvnArtifactJson({ groupId, artifactId, version })
 
     return { installedArtifact: `${groupId}:${artifactId}:${version}`, artifactJson }
-}
-
-async function getLatestArtifactVersion({ groupId, artifactId }) {
-    const response = await fetch(`http://search.maven.org/solrsearch/select?q=g:%22${groupId}%22+AND+a:%22${artifactId}%22`)
-
-    if (!response.ok) throw new Error("Error connecting to Maven.")
-
-    const { response: { docs } } = await response.json()
-
-    if (docs.length === 0) throw new Error("Artifact not found @ Maven.")
-    return docs[0].latestVersion
 }
 
 async function addNpmArtifact(artifact) {

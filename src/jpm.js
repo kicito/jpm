@@ -31,7 +31,7 @@ async function jpm() {
         await execute(command, args)
     } catch (error) {
         options.trace
-            ? console.trace(error.message)
+            ? console.trace(error.message, error.source)
             : console.log(error.message)
     }
 }
