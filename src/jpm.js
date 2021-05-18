@@ -6,7 +6,7 @@ const packageJson = require("../package.json");
 const { execute, Command } = require("./commands");
 
 async function jpm() {
-    const program = new commander.Command(packageJson.name)
+    const program = new commander.Command("jpm")
         .version(packageJson.version)
         .arguments("<command> [pkg-name]")
         .option("--trace", "Use trace")
