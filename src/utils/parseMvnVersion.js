@@ -2,6 +2,9 @@ const LATEST_VERSION = require('../constants/latestVersion')
 
 function parseMvnVersion(rangeString) {
 
+    // TODO - check: are versions always specified in pom.xml ?
+    // if (!rangeString) return LATEST_VERSION
+
     let ranges = rangeString.split(",").filter(v => Boolean(v))
     let version = ranges.pop()
 

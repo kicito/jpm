@@ -4,8 +4,10 @@ const os = require("os");
 const { JPM_JSON } = require("../utils/jpmJson")
 const { parsePom } = require("../utils/parsePom")
 const { makeMvnArtifactJson } = require("../utils/makeMvnArtifactJson")
+const { getLatestArtifactVersion } = require("../utils/getLatestArtifactVersion")
 
 const LIB_DIR = require("../constants/lib")
+const LATEST_VERSION = require("../constants/latestVersion")
 
 async function init() {
 
@@ -26,7 +28,10 @@ async function init() {
 
     const updateInitPeers = async entries => {
         for (let [artifact, version] of entries) {
-            const [groupId, artifactId] = artifact.split(":")
+            const [groupId, artifactId] = artifact.split(":");
+
+            (!version || version === LATEST_VERSION) && (version = await getLatestArtifactVersion({ groupId, artifactId }))
+
             const parsedPom = await makeMvnArtifactJson({ groupId, artifactId, version })
 
             const newEntries = Object.entries(parsedPom)
