@@ -13,8 +13,10 @@ const makeArtifactPomUrl =
         `https://repo1.maven.org/maven2/${groupPath(artifact)}/${pomName(artifact)}`;
 
 async function makeMvnArtifactJson({ groupId, artifactId, version }) {
-    const response = await fetch(makeArtifactPomUrl({ groupId, artifactId, version }))
-    fs.mkdirSync(".tmp")
+    const url = makeArtifactPomUrl({ groupId, artifactId, version })
+
+    const response = await fetch(url)
+    !fs.existsSync(".tmp") && fs.mkdirSync(".tmp")
 
     const pomPath = `.tmp/tmp-${groupId}:${artifactId}-pom.xml`
 
