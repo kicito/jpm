@@ -28,8 +28,8 @@ function remove(artifactRef) {
     delete jpmJson.dependencies[repo][artifact]
     delete jpmJson.mvnPeers
 
-    fs.removeSync(`${PACKAGE_DIR}`, { recursive: true });
-    fs.removeSync(`${LIB_DIR}`, { recursive: true });
+    fs.removeSync(`${PACKAGE_DIR}`);
+    fs.removeSync(`${LIB_DIR}`);
 
     JPM_JSON.write(jpmJson)
 
