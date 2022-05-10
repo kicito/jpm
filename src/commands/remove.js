@@ -6,7 +6,7 @@ const { JPM_JSON } = require('../utils/jpmJson');
 const { install } = require("./install");
 const chalk = require('chalk')
 
-function remove(artifactRef) {
+async function remove(artifactRef) {
 
     const jpmJson = JPM_JSON.read()
 
@@ -33,7 +33,7 @@ function remove(artifactRef) {
 
     JPM_JSON.write(jpmJson)
 
-    install()
+    await install()
 
 }
 

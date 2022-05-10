@@ -74,7 +74,7 @@ async function addArtifactDependencies({ repo, artifactJson }) {
             }
             await add(`${artifactId}${version !== LATEST_VERSION ? `:${version}` : ''}@${repo}`, config)
         }
-    } else install(artifactJson)
+    } else await install(artifactJson)
 }
 
 async function addMvnArtifact(artifact) {
