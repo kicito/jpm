@@ -56,8 +56,11 @@ class Package {
   }
 
   #getTarDataURL(prefix = 'https://registry.npmjs.com'): string {
-    const tarballName = this.packageName.includes('/') ? this.packageName.split('/')[1] : this.packageName
-    return `${prefix}/${this.packageName}/-/${tarballName}-${this.version}.tgz`
+    return `${prefix}/${this.packageName}/-/${this.#tarBallName()}-${this.version}.tgz`
+  }
+
+  #tarBallName(): string {
+    return this.packageName.includes('/') ? this.packageName.split('/')[1]! : this.packageName
   }
 
   async getDependencies(): Promise<(Package | Artifact)[]> {
@@ -105,7 +108,7 @@ class Package {
       mkdirSync(jpmTmpDir, { recursive: true })
     }
     for (const dep of deps) {
-      const tmpDir = join(jpmTmpDir, `${dep.packageName}-${dep.version}.tgz`)
+      const tmpDir = join(jpmTmpDir, `${dep.#tarBallName()}-${dep.version}.tgz`)
       await download(dep.#getTarDataURL(), tmpDir)
       const packageDir = join(packageRootDir, dep.packageName)
       await decompress(tmpDir, packageDir, { strip: 1 })
