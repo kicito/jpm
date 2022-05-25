@@ -56,7 +56,8 @@ class Package {
   }
 
   #getTarDataURL(prefix = 'https://registry.npmjs.com'): string {
-    return `${prefix}/${this.packageName}/-/${this.packageName}-${this.version}.tgz`
+    const tarballName = this.packageName.includes('/') ? this.packageName.split('/')[1] : this.packageName
+    return `${prefix}/${this.packageName}/-/${tarballName}-${this.version}.tgz`
   }
 
   async getDependencies(): Promise<(Package | Artifact)[]> {
@@ -66,6 +67,7 @@ class Package {
     if (!semver.valid(this.version)) {
       this.version = (this.meta!['dist-tags']! as Record<string, string>)[this.version]!
     }
+
     if (((this.meta!['versions'] as Record<string, unknown>)[this.version] as JSONSchemaForNPMPackageJsonWithJolieSPackageManager)) {
       const jpmPackage = ((this.meta!['versions'] as Record<string, unknown>)[this.version] as JSONSchemaForNPMPackageJsonWithJolieSPackageManager)
       if (jpmPackage.jpm) {
