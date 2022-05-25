@@ -70,6 +70,8 @@ add jolie-jsoup with latest tag into the project`
         await Artifact.downloadDistJarAndDependencies(join(process.cwd(), 'lib'), deps)
 
         packageJSON.addMVNDependencies(deps[0]!, deps.slice(1))
+        deps.forEach(e => this.log(`Installed ${e.toString()}`))
+
       } else if (repo === 'npm') {
         const npmPackage = buildPackageFromTarget(args['target'])
         const deps = await npmPackage.getDependencies()
@@ -85,12 +87,15 @@ add jolie-jsoup with latest tag into the project`
         }
         await Package.downloadPackageAndDependencies(join(process.cwd()), jpmDeps)
         await Artifact.downloadDistJarAndDependencies(join(process.cwd(), 'lib'), mvnDeps)
-        if (mvnDeps.length > 0) {
-          packageJSON.addMVNDependencies(undefined, mvnDeps)
-        }
 
         if (jpmDeps.length > 0) {
           packageJSON.addJPMDependencies(jpmDeps)
+          jpmDeps.forEach(e => this.log(`Installed ${e.toString()}`))
+        }
+
+        if (mvnDeps.length > 0) {
+          packageJSON.addMVNDependencies(undefined, mvnDeps)
+          mvnDeps.forEach(e => this.log(`Installed ${e.toString()}`))
         }
       } else {
         throw errorImportTarget(args['target'])

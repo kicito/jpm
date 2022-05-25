@@ -1,7 +1,9 @@
 
-import { join } from 'path'
+import { join, resolve } from 'path'
 import { tmpdir } from 'os'
 import { existsSync, mkdirSync, rmSync } from 'fs'
+
+export const resourcesPath = resolve(__dirname, '..', 'resources')
 
 export const createTestDirIfNotExist = (directory: string): string => {
     const path = join(tmpdir(), 'jpm_test', directory)

@@ -1,0 +1,213 @@
+{
+  "_id": "jolie-jsoup",
+  "_rev": "3-e6e0fa1442edecda5fdf824ca0a61951",
+  "name": "jolie-jsoup",
+  "dist-tags": { "latest": "0.1.0", "jpmk": "0.2.2" },
+  "versions": {
+    "0.1.0": {
+      "name": "jolie-jsoup",
+      "description": "A html parser library for Jolie",
+      "author": {
+        "name": "Narongrit Unwerawattana",
+        "email": "narongrit.kie@gmail.com",
+        "url": "https://www.github.com/kicito"
+      },
+      "version": "0.1.0",
+      "license": "LGPL 2.1",
+      "keywords": ["jolie", "html parser", "jsoup"],
+      "_id": "jolie-jsoup@0.1.0",
+      "_integrity": "sha512-uASq8WdOL/7eWvm+/8I0ZamRaUuF7JxleuSgRgvG7eCi5MQ/9ZDB3LZVJSZ7yvYapKPVBiC9SbEyPlrmrsYm2w==",
+      "_resolved": "/home/nau/sdu/jolie-jsoup/jolie-jsoup-0.1.0.tgz",
+      "_from": "file:jolie-jsoup-0.1.0.tgz",
+      "_nodeVersion": "16.15.0",
+      "_npmVersion": "8.5.5",
+      "dist": {
+        "integrity": "sha512-uASq8WdOL/7eWvm+/8I0ZamRaUuF7JxleuSgRgvG7eCi5MQ/9ZDB3LZVJSZ7yvYapKPVBiC9SbEyPlrmrsYm2w==",
+        "shasum": "3f6098106a2880e60ff528eea23526a6d9d4b9b5",
+        "tarball": "https://registry.npmjs.org/jolie-jsoup/-/jolie-jsoup-0.1.0.tgz",
+        "fileCount": 9,
+        "unpackedSize": 37578,
+        "signatures": [
+          {
+            "keyid": "SHA256:jl3bwswu80PjjokCgh0o2w5c2U4LhQAE57gj9cz1kzA",
+            "sig": "MEUCIQCfVwzCNNmM31ah9C6tvYEOWHq+QVGSatE+hGwSIcsqCAIgDzdq4p5GPfZCleUJ6CXzbeAPCfebJuOlB9kBaiZrHGw="
+          }
+        ],
+        "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v4.10.10\r\nComment: https://openpgpjs.org\r\n\r\nwsFzBAEBCAAGBQJigs1OACEJED1NWxICdlZqFiEECWMYAoorWMhJKdjhPU1b\r\nEgJ2VmrpOQ/9EzpzZhkeEvMcZ+v+drAA8vT0x4ffIZP4UA1Qn1hwspJc1HD7\r\nGGFKeKxvIXsa7StvIdnqqBWE97gtfEztdUv3Ua050GSnKtd/fFY4qdabAosl\r\n3U1zcmNvHN2+B7eKk7VYExtE/g8EoVopjWGpO2GfvlqOVcZztb0sgqh6Dato\r\nMA1/+Dj7ljojbiR1u7H5sY+JOBH6iHpyo/gMuu4W1HyroVTQEKflRQYdt5hO\r\n6INITpZqo7XAx/9+0xTeXaDmbiao2sPmR3eRWNKSxkGs4gp+b0oHdlwrVnmI\r\nLnrK7JvbUDxYDpoL9Z1BU0xLe25iG04xOtdj3ZL8LxmJ34XeqhNzjkjBj1ZQ\r\nyeDTekl1Xu3l1LwNJsteckpvNa5nxMbM3FL3V+fwubfQG0y1RdEcSuOe6Ynw\r\nrlXqkq8dGle7c80R8HbyD1sqS0hxJH6SgeEjXsuTvDuaQJV6yAjraSis9S6/\r\nKX1VGfJjdsKqyVOb5Et+SaodnSkPRteHQ7c8uvFYu4FfOe33D6rSavoK5NWT\r\n82rwTA26+oizn7BIpMKvACtn8T+M7pliD5fFpOGpUWGaliidRTxlBbnJ5dlG\r\n6JzbYW1ysMH8Tk7dVHv42kPWQL1KF3esr/2QuZt/oFgq4jY6xLpSyqT/h/HH\r\nfbOeNoC8+ZQurNMiacS+gVkorR03ppCx4g8=\r\n=qei4\r\n-----END PGP SIGNATURE-----\r\n"
+      },
+      "_npmUser": { "name": "kicito", "email": "narongrit.kie@gmail.com" },
+      "directories": {},
+      "maintainers": [{ "name": "kicito", "email": "narongrit.kie@gmail.com" }],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/jolie-jsoup_0.1.0_1652739406041_0.6488114889161141"
+      },
+      "_hasShrinkwrap": false
+    },
+    "0.2.0": {
+      "name": "jolie-jsoup",
+      "description": "A html parser library for Jolie",
+      "author": {
+        "name": "Narongrit Unwerawattana",
+        "email": "narongrit.kie@gmail.com",
+        "url": "https://www.github.com/kicito"
+      },
+      "version": "0.2.0",
+      "license": "LGPL 2.1",
+      "keywords": ["jolie", "html parser", "jsoup"],
+      "scripts": {
+        "prepack": "mvn package -DoutDir=dist",
+        "postpublish": "shx rm -rf dist"
+      },
+      "devDependencies": { "shx": "^0.3.4" },
+      "readme": "# jolie-jsoup\n\nA [jsoup](https://jsoup.org/) Java library connector for [Jolie](https://jolie-lang.org).\n\n## Installation\n\n`jpm add @jolie-jsoup`\n\n## Usage\n\nSee the example in <https://github.com/kicito/jolie-jsoup/blob/main/example/example.ol>.",
+      "readmeFilename": "README.md",
+      "gitHead": "54c0b1862e3a6074502a23cfbc86db87e8f8870a",
+      "_id": "jolie-jsoup@0.2.0",
+      "_nodeVersion": "16.15.0",
+      "_npmVersion": "8.5.5",
+      "dist": {
+        "integrity": "sha512-4GIxDaVVyXvJGa4/s6PyEp+Etkzo7MKZNj0zY7xHcmURyA6VGl7+8f5Z0QkGhEbI5+LJr1O57oq73q4ExHEMKg==",
+        "shasum": "066891d7eec6a01834ed2771f6bf3061e1b58641",
+        "tarball": "https://registry.npmjs.org/jolie-jsoup/-/jolie-jsoup-0.2.0.tgz",
+        "fileCount": 8,
+        "unpackedSize": 466487,
+        "signatures": [
+          {
+            "keyid": "SHA256:jl3bwswu80PjjokCgh0o2w5c2U4LhQAE57gj9cz1kzA",
+            "sig": "MEUCIGNtociFurthOPgNERudgGlANrkkIJbgEZioEja3cvI7AiEAiViTQwQLUxNQI8s9B63wfrwQfaLf6zx+D6GE8PQ9JlU="
+          }
+        ],
+        "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v4.10.10\r\nComment: https://openpgpjs.org\r\n\r\nwsFzBAEBCAAGBQJijKlsACEJED1NWxICdlZqFiEECWMYAoorWMhJKdjhPU1b\r\nEgJ2VmoCQQ/9FkHzaZRyg2ubzukplHYZSCB8/oWemKFagiTIwGQAL644gk5Y\r\nNhn2S1QZ1insoxgEGN2sRmyBbd0mLdfutCZOq3zM36TJsoNR2ZqeU+9W21qq\r\nQgyKC8MAXORrAsTdpFR2uczxtyYfoSFHjftLZe30U1aqOP5sRqX+/sTjG9VR\r\npJbedeMdrnUf4OrZ9sWTnK6px258F/54hiUhWORsF7tzY0P3W/mT5P9a+tiC\r\nlIgNLbn+6kaCDvVR39yJ5b3vBkdUOdYv4eq4lG/UWdwR20aJjnbDM4/0ALZA\r\ncHI7vhdc14rToRbwyDefKBLVQQjgJM1FtJJJu4XuM7uMYq+Q97xTsOn+mOu9\r\n3eWSL2dx8N37E0PxwZmaqv+FJ5fDBksq+KdsAuzmFFrrTh/rkFbxeUzyYFLW\r\nKugIjsr/ffr9YIPEGwlaAdXn0SF4cUephdRk0Wf+34R7g/vw5Y+3MqwNfZFh\r\n1+cPnq+s88pzf6ELogywhsmMRNxZ5epIv+MfSKZ1EOxf7L/gbrv2mExNK4ER\r\nCl3Zs/Zcxi2W0mPms/Sh2vfdxR8nekEmol6NNJ2P4W1dngySiKyoKubN4diG\r\nU81THec6mgEWjfjZMB8eNcjRscXXcsxU77Ahr9AqnXZN2vpdDMN38NSHu6lB\r\nT/BGIrU99KEcWbq8ugA571iLmUHDbDBYkug=\r\n=CPBk\r\n-----END PGP SIGNATURE-----\r\n"
+      },
+      "_npmUser": { "name": "kicito", "email": "narongrit.kie@gmail.com" },
+      "directories": {},
+      "maintainers": [{ "name": "kicito", "email": "narongrit.kie@gmail.com" }],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/jolie-jsoup_0.2.0_1653385580484_0.9348748621287297"
+      },
+      "_hasShrinkwrap": false
+    },
+    "0.2.1": {
+      "name": "jolie-jsoup",
+      "description": "A html parser library for Jolie",
+      "author": {
+        "name": "Narongrit Unwerawattana",
+        "email": "narongrit.kie@gmail.com",
+        "url": "https://www.github.com/kicito"
+      },
+      "version": "0.2.1",
+      "license": "LGPL 2.1",
+      "keywords": ["jolie", "html parser", "jsoup"],
+      "scripts": {
+        "prepack": "jpm hooks prepack",
+        "postpublish": "shx rm -rf dist"
+      },
+      "devDependencies": { "shx": "^0.3.4" },
+      "jpm": {
+        "jolieDependencies": {},
+        "mavenDependencies": {},
+        "mavenIndirectDependencies": {}
+      },
+      "readme": "# jolie-jsoup\n\nA [jsoup](https://jsoup.org/) Java library connector for [Jolie](https://jolie-lang.org).\n\n## Installation\n\n`jpm add @jolie-jsoup`\n\n## Usage\n\nSee the example in <https://github.com/kicito/jolie-jsoup/blob/main/example/example.ol>.",
+      "readmeFilename": "README.md",
+      "gitHead": "7bbd7fa498ea6d7280c7356b70b2f4f770ec6f9b",
+      "_id": "jolie-jsoup@0.2.1",
+      "_nodeVersion": "16.15.0",
+      "_npmVersion": "8.5.5",
+      "dist": {
+        "integrity": "sha512-0H8x7fgVbsmGWvxulZE8xSr9ZSUDS6p2sJypXcg0BX0hbQW7Ny8YQLmheULXarpgJnGPBei9nZ5YbRp0nvwOKg==",
+        "shasum": "bc4491d19110c761d5dea53f99c168a5bda10e6d",
+        "tarball": "https://registry.npmjs.org/jolie-jsoup/-/jolie-jsoup-0.2.1.tgz",
+        "fileCount": 8,
+        "unpackedSize": 466619,
+        "signatures": [
+          {
+            "keyid": "SHA256:jl3bwswu80PjjokCgh0o2w5c2U4LhQAE57gj9cz1kzA",
+            "sig": "MEQCIGXSH8ZykASv+5ypNTlSg8CZ/ta2kn1/q8lm009JwBUOAiAGJlIZWlmmKuZaS+Edd/aBLkAc9ERr77G/79wqgKkgew=="
+          }
+        ],
+        "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v4.10.10\r\nComment: https://openpgpjs.org\r\n\r\nwsFzBAEBCAAGBQJijN6uACEJED1NWxICdlZqFiEECWMYAoorWMhJKdjhPU1b\r\nEgJ2VmqfVg/+MIDoAO8VIH+y6rJ1sODXA6GIt1W3yW7MwBZmkM+hysIly2b1\r\n5avJ2nXeDz+IMj/j/4QY57qp3wxV6oKkDCzSwXGcjTrRBXMD6OsKyLefDXr6\r\n57e7EvdRbCNnjuwmMxUz/YTYNTujbClJWVnelNl2eCl/3165l9x37LM5KNgo\r\nnm8pQckpwee2QIr1EMYnIWKvJnGE7qZYe5YxnQUG8a2hHTgCThHKr+xvhZt0\r\nEduL6B9PDo+9+wVgf7h2U3Fb7uHWmscaM1sY/u3O0SRuevNXbur1OpdXwVSb\r\nK6DimbYrCAL1jzxD5KWq20Hkk65CGiZuc7n9GCnVTUBi0cVZ4EC4KFrWG9KA\r\nqjFKXpaO8OxTp/MCd3UZH/rnUFvCEeww8HodSwwfeii5DmVcklMEh+/ZtzVr\r\n6UI7Y3Dox8IkO6UnR1KSUW7vKn3/aoXLKE2/3+7iYAHhxx97AJxMgfFtnoTq\r\nEOx+KDtYRomIuv7kUR+XqG/8prlGe0c4NuA1QKrdwndiJELPNptnsIAyuDkI\r\nOnaTB1LXWn83L5jtf0wNDcOO/sBaA+TiJ7mLKeiQCb64fWbcF8vF6gvmS2zI\r\nSfpsbLNgpRWIJOeB2hoW1VDbV5JXxMp8N2+AIpXovf9g4ifEeDhUxSwcYbLo\r\nXNzD7icioEzybHakv6EuBGGtkxR4/ccWmMM=\r\n=N1si\r\n-----END PGP SIGNATURE-----\r\n"
+      },
+      "_npmUser": { "name": "kicito", "email": "narongrit.kie@gmail.com" },
+      "directories": {},
+      "maintainers": [{ "name": "kicito", "email": "narongrit.kie@gmail.com" }],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/jolie-jsoup_0.2.1_1653399214294_0.5125968657419253"
+      },
+      "_hasShrinkwrap": false
+    },
+    "0.2.2": {
+      "name": "jolie-jsoup",
+      "description": "A html parser library for Jolie",
+      "author": {
+        "name": "Narongrit Unwerawattana",
+        "email": "narongrit.kie@gmail.com",
+        "url": "https://www.github.com/kicito"
+      },
+      "version": "0.2.2",
+      "license": "LGPL 2.1",
+      "keywords": ["jolie", "html parser", "jsoup"],
+      "scripts": {
+        "prepack": "jpm hooks prepack",
+        "preinstall": "jpm hooks preinstall",
+        "postpublish": "shx rm -rf dist"
+      },
+      "devDependencies": { "shx": "^0.3.4" },
+      "jpm": {
+        "jolieDependencies": {},
+        "mavenDependencies": {},
+        "mavenIndirectDependencies": {}
+      },
+      "readme": "# jolie-jsoup\n\nA [jsoup](https://jsoup.org/) Java library connector for [Jolie](https://jolie-lang.org).\n\n## Installation\n\n`jpm add @jolie-jsoup`\n\n## Usage\n\nSee the example in <https://github.com/kicito/jolie-jsoup/blob/main/example/example.ol>.",
+      "readmeFilename": "README.md",
+      "gitHead": "ef064764872bd5c052c9322d0114e8ab87113434",
+      "_id": "jolie-jsoup@0.2.2",
+      "_nodeVersion": "16.15.0",
+      "_npmVersion": "8.5.5",
+      "dist": {
+        "integrity": "sha512-KQwAJ9bPA80mG58YjsIm+TqiMSkoSTKaqUmiJeWmVdhNeo7dtDMB6JbraxtftCqHkg8qy3KVk6dkwkGUITNC6Q==",
+        "shasum": "268df25e439af0c26f92a7feda89d60f37ab9193",
+        "tarball": "https://registry.npmjs.org/jolie-jsoup/-/jolie-jsoup-0.2.2.tgz",
+        "fileCount": 8,
+        "unpackedSize": 466661,
+        "signatures": [
+          {
+            "keyid": "SHA256:jl3bwswu80PjjokCgh0o2w5c2U4LhQAE57gj9cz1kzA",
+            "sig": "MEUCIG0pEQKzs3l7zQwtnKmHtu+mT8rlpdJLxZQ1mDkN2sKxAiEA7/C8RRUtkZ77tqDAhf4N8HOwt6qlquYi0LXaOZ8Vig8="
+          }
+        ],
+        "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v4.10.10\r\nComment: https://openpgpjs.org\r\n\r\nwsFzBAEBCAAGBQJijOABACEJED1NWxICdlZqFiEECWMYAoorWMhJKdjhPU1b\r\nEgJ2VmpYyxAAkan/uUAovr0YWTDtKgxYWQYi5XLb1QQi7QoSfOhqX15Zsavs\r\nW3UdiGEyMy7B/BgXNsrguqIdKyxu0s5uHJk8uTsIvel/XhTrbUX/wmhlVxIR\r\nQb2y+0mT0hn0c1ao6Q/N/STAglRuVQATBZ3SlmYlPi7cpTY9PWYSl8MTvF1C\r\nAqSLiVIpUm7bHvZAxmf6i1HZe9BVVhu1Ls99e08KZaSx0AV5I8UhpTE0qwYL\r\nqTZqAdtbZNJlzihGg8+zsV1MJ9ZfTZ3NeXQ8ALqOjAmTnpN6/cKRTJgfge3W\r\nWy+niRiA73PixyvZZ+QAvhmrtNi28aUe+WtK/k/0XPu8NST4mnidi72OByFF\r\nqSNTpLatjaGrjhfq2lZx22Ntqtl918SqMfZ/5EDFIFK3T8xl6q8mQl4iZ5sq\r\ncrll2y7svKLyJDuinPQRB35mlN7JhZOXMI29wE0BkeZrifkWM2hRz5mdhECv\r\naUn/LLtXjOCPB2txjwrwp9Wdd6YOEiSfg1AR+Y2TsXOI2cGnBxsZNbQidvzq\r\nPEXaC47hoi5fzYc8vz5whTwUpPMlMDax93HBYRuj8umTDu4ca7tGFr80Z24G\r\nB+VukMRD7IF5q/EaV/YTkgXHBiqN2CHWcMmLtORuDjaAMucD5wyonSARZaXG\r\nQYI1/NwAyf+/so3HsXwwmS4fIJvm4SlAUeg=\r\n=0B5G\r\n-----END PGP SIGNATURE-----\r\n"
+      },
+      "_npmUser": { "name": "kicito", "email": "narongrit.kie@gmail.com" },
+      "directories": {},
+      "maintainers": [{ "name": "kicito", "email": "narongrit.kie@gmail.com" }],
+      "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/jolie-jsoup_0.2.2_1653399553184_0.16113173264773595"
+      },
+      "_hasShrinkwrap": false
+    }
+  },
+  "time": {
+    "created": "2022-05-16T22:16:46.040Z",
+    "0.1.0": "2022-05-16T22:16:46.267Z",
+    "modified": "2022-05-24T13:39:13.471Z",
+    "0.2.0": "2022-05-24T09:46:20.722Z",
+    "0.2.1": "2022-05-24T13:33:34.549Z",
+    "0.2.2": "2022-05-24T13:39:13.366Z"
+  },
+  "maintainers": [{ "name": "kicito", "email": "narongrit.kie@gmail.com" }],
+  "description": "A html parser library for Jolie",
+  "keywords": ["jolie", "html parser", "jsoup"],
+  "author": {
+    "name": "Narongrit Unwerawattana",
+    "email": "narongrit.kie@gmail.com",
+    "url": "https://www.github.com/kicito"
+  },
+  "license": "LGPL 2.1",
+  "readme": "",
+  "readmeFilename": ""
+}

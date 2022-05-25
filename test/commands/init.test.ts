@@ -1,11 +1,10 @@
 import { expect, test } from '@oclif/test'
 import { describe } from 'mocha'
-import { createTestDirIfNotExist, deleteTestDirIfNotExist } from '../helpers/testUtil'
+import { resourcesPath, createTestDirIfNotExist, deleteTestDirIfNotExist } from '../helpers/testUtil'
 import PackageJSON from '../../src/packageJSON'
 import { cpSync } from 'fs'
-import { join, resolve } from 'path'
+import { join } from 'path'
 
-const resourcesPath = resolve(__dirname, '..', 'resources')
 describe('init', () => {
   test
     .do(() => {
@@ -22,11 +21,4 @@ describe('init', () => {
       deleteTestDirIfNotExist()
       done()
     })
-
-  // test
-  //   .stdout()
-  //   .command(['init', '--name', 'jeff'])
-  //   .it('runs hello --name jeff', ctx => {
-  //     expect(ctx.stdout).to.contain('hello jeff')
-  //   })
 })
