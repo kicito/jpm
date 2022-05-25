@@ -64,8 +64,8 @@ EXAMPLES
   $ jpm init
       add jpm related fields to package.json in current working directory
 
-  $ jpm init [dir]
-      add jpm related fields to package.json in specify dir
+  $ jpm init [path]
+      add jpm related fields to package.json in specify path
 ```
 
 _See code: [dist/commands/init.ts](https://github.com/jolie/jpm/blob/v1.0.1/dist/commands/init.ts)_
