@@ -1,45 +1,122 @@
 {
-	"name": "@jolie/jpm",
-	"version": "0.1.6",
-	"description": "The Jolie Package Manager",
-	"main": "./src/index.js",
-	"bin": "./src/index.js",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
-	},
-	"keywords": [
-		"jolie",
-		"microservices"
-	],
-	"contributors": [
-		{
-			"name": "Luis Antonio Canettoli Ordoñez",
-			"email": "hello@luisanton.io"
-		},
-		{
-			"name": "Fabrizio Montesi",
-			"email": "famontesi@gmail.com",
-			"url": "https://www.fabriziomontesi.com"
-		}
-	],
-	"author": "",
-	"license": "MIT",
-	"dependencies": {
-		"adm-zip": "^0.5.4",
-		"chalk": "^4.1.0",
-		"commander": "^7.1.0",
-		"extract-zip": "^2.0.1",
-		"form-data": "^4.0.0",
-		"fs-extra": "^10.0.0",
-		"glob": "^7.1.6",
-		"node-fetch": "^2.6.1",
-		"ora": "^5.3.0",
-		"pom-parser": "^1.2.0",
-		"prompts": "^2.4.0",
-		"semver": "^5.7.1",
-		"tar": "^6.1.0"
-	},
-	"devDependencies": {
-		"nodemon": "^2.0.7"
-	}
+  "name": "@jolie/jpm",
+  "version": "1.0.0",
+  "description": "The Jolie package manager",
+  "contributors": [
+    {
+      "name": "Luis Antonio Canettoli Ordoñez",
+      "email": "hello@luisanton.io"
+    },
+    {
+      "name": "Fabrizio Montesi",
+      "email": "famontesi@gmail.com",
+      "url": "https://www.fabriziomontesi.com"
+    },
+    {
+      "name": "Narongrit Unwerawattana",
+      "email": "narongrit.kie@gmail.com"
+    }
+  ],
+  "bin": {
+    "jpm": "./bin/run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jolie/jpm.git"
+  },
+  "keywords": [
+    "jolie",
+    "microservices"
+  ],
+  "homepage": "https://github.com/jolie/jpm",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "files": [
+    "/bin",
+    "/dist",
+    "/npm-shrinkwrap.json",
+    "/oclif.manifest.json"
+  ],
+  "dependencies": {
+    "@oclif/core": "^1",
+    "@oclif/plugin-help": "^5",
+    "chalk": "^4.1.2",
+    "debug": "^4.3.4",
+    "decompress": "^4.2.1",
+    "glob": "^8.0.3",
+    "mime-types": "^2.1.35",
+    "node-fetch": "^2.6.7",
+    "pom-parser": "^1.2.0",
+    "semver": "^7.3.7",
+    "shelljs": "^0.8.5"
+  },
+  "devDependencies": {
+    "@oclif/test": "^2",
+    "@tsconfig/node16-strictest-esm": "^1.0.1",
+    "@types/chai": "^4",
+    "@types/debug": "^4.1.7",
+    "@types/decompress": "^4.2.4",
+    "@types/mime-types": "^2.1.1",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^16.11.36",
+    "@types/node-fetch": "^2.6.1",
+    "@types/semver": "^7.3.9",
+    "@types/shelljs": "^0.8.11",
+    "@typescript-eslint/eslint-plugin": "^5.26.0",
+    "@typescript-eslint/parser": "^5.26.0",
+    "chai": "^4",
+    "eslint": "^8.16.0",
+    "eslint-config-oclif": "^4",
+    "eslint-config-oclif-typescript": "^1.0.2",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.2.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "eslint-plugin-standard": "^5.0.0",
+    "globby": "^11",
+    "mocha": "^9",
+    "oclif": "^3",
+    "prettier": "2.6.2",
+    "shx": "^0.3.3",
+    "ts-node": "^10.2.1",
+    "tslib": "^2.3.1",
+    "typescript": "^4.4.3"
+  },
+  "oclif": {
+    "bin": "jpm",
+    "dirname": "jpm",
+    "commands": "./dist/commands",
+    "plugins": [
+      "@oclif/plugin-help"
+    ],
+    "topicSeparator": " ",
+    "topics": {
+      "init": {
+        "description": "Initialize jpm configuration on package.json"
+      },
+      "install": {
+        "description": "Install jpm related dependencies"
+      },
+      "remove": {
+        "description": "Remove jpm related dependencies"
+      }
+    }
+  },
+  "scripts": {
+    "build": "shx rm -rf dist tsconfig.tsbuildinfo && tsc -b",
+    "lint": "eslint . --ext .ts --config .eslintrc.json",
+    "lint-fix": "eslint . --fix --ext .ts --config .eslintrc.json",
+    "postpack": "shx rm -f oclif.manifest.json",
+    "posttest": "yarn lint",
+    "prepack": "yarn build && oclif manifest && oclif readme",
+    "test": "mocha --forbid-only \"test/**/*.test.ts\"",
+    "version": "oclif readme && git add README.md"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "bugs": "https://github.com/kicito/jpm/issues",
+  "types": "dist/index.d.ts"
 }
