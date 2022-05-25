@@ -16,7 +16,14 @@
     ],
     "rules": {
         "space-before-function-paren": "off",
-        "dot-notation": "off"
+        "dot-notation": "off",
+        "quotes": [
+            "error",
+            "single"
+        ]
     },
-    "ignorePatterns":["dist", "node_modules"]
+    "ignorePatterns": [
+        "dist",
+        "node_modules"
+    ]
 }

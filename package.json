@@ -90,19 +90,7 @@
     "commands": "./dist/commands",
     "plugins": [
       "@oclif/plugin-help"
-    ],
-    "topicSeparator": " ",
-    "topics": {
-      "init": {
-        "description": "Initialize jpm configuration on package.json"
-      },
-      "install": {
-        "description": "Install jpm related dependencies"
-      },
-      "remove": {
-        "description": "Remove jpm related dependencies"
-      }
-    }
+    ]
   },
   "scripts": {
     "build": "shx rm -rf dist tsconfig.tsbuildinfo && tsc -b",

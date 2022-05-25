@@ -1,7 +1,7 @@
 import { Command } from '@oclif/core'
 import { ERR_NOT_JPM_PACKAGE } from '../errors'
 import PackageJSON from '../packageJSON'
-import { existsSync,rmdirSync } from "fs"
+import { existsSync, rmdirSync } from 'fs'
 import { join } from 'path'
 import Install from './install'
 
@@ -26,11 +26,11 @@ export default class Remove extends Command {
     packageJSON.removeDependency(args['target'])
     packageJSON.removeMVNIndiectDependencies()
 
-    if (existsSync(join(process.cwd(), "package"))){
-      rmdirSync(join(process.cwd(), "package"))
+    if (existsSync(join(process.cwd(), 'package'))) {
+      rmdirSync(join(process.cwd(), 'package'))
     }
-    if (existsSync(join(process.cwd(), "lib"))){
-      rmdirSync(join(process.cwd(), "lib"))
+    if (existsSync(join(process.cwd(), 'lib'))) {
+      rmdirSync(join(process.cwd(), 'lib'))
     }
 
     await Install.run()

@@ -4,7 +4,7 @@ import chalk from 'chalk'
 export default class HooksPreinstall extends Command {
   static override hidden = true
   static override description = `Hooks script to run before jpm package is installed.
-  Currently, it checks and throw error if the package manager is not ${chalk.bold("jpm")}
+  Currently, it checks and throw error if the package manager is not ${chalk.bold('jpm')}
   eg. npm install JOLIE_PACKAGE should fail the installation`
 
   static override examples = [

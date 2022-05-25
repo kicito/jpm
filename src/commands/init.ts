@@ -7,22 +7,24 @@ export default class Init extends Command {
   static override examples = [
     `$ jpm init
     add jpm related fields to package.json in current working directory`,
-    `$ jpm init [path]
-    add jpm related fields to package.json in specify path`
+    `$ jpm init [dir]
+    add jpm related fields to package.json in specify dir`
   ]
 
-  static override args: [{ name: 'path', description: 'Target package' }]
+  static override args: [{ name: 'dir', description: 'Target package' }]
 
+  static override strict = false
   public async run(): Promise<void> {
-    const { args } = await this.parse(Init)
-    const { path } = args
-    if (path) {
-      this.log('Adding jpm related fields to ' + path)
+    const { argv } = await this.parse(Init)
+    let packageJSON: PackageJSON
+    if (argv[0]) {
+      this.log('Adding jpm related fields to ' + argv[0])
+      packageJSON = new PackageJSON(argv[0])
     } else {
       this.log('Adding jpm related fields to current directory')
+      packageJSON = new PackageJSON()
     }
 
-    const packageJSON = new PackageJSON(path)
     packageJSON.init()
   }
 }
