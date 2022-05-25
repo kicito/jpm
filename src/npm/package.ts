@@ -36,9 +36,15 @@ class Package {
 
   constructor(target: string) {
     if (target.includes('@')) {
-      const resSplitAt = target.split('@', 2)
-      this.packageName = resSplitAt[0]!
-      this.version = resSplitAt[1]!
+      const splitIndex = target.lastIndexOf('@')
+      this.packageName = target.slice(0, splitIndex)
+      if (this.packageName === '') {
+        // package name gets priority eg. jpm install @jolie/websockets to jpm install @jolie/websockets@latest
+        this.packageName = target.slice(splitIndex)
+        this.version = 'latest'
+      } else {
+        this.version = target.slice(splitIndex + 1)
+      }
     } else {
       this.packageName = target
       this.version = 'latest'
@@ -78,7 +84,7 @@ class Package {
             res.push(new Package(key + '@' + jpmPackage.jpm.mavenDependencies![key]))
           })
         }
-      }else{
+      } else {
         throw ERR_TARGET_NOT_JPM_PACKAGE
       }
     }
