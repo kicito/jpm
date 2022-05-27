@@ -98,7 +98,7 @@ class Package {
   }
 
   static async downloadPackageAndDependencies(dist: string, deps: Package[]) {
-    const packageRootDir = join(dist, 'package')
+    const packageRootDir = join(dist, 'packages')
     const libDir = join(dist, 'lib')
     const jpmTmpDir = join(tmpdir(), 'jpm')
     if (!existsSync(packageRootDir)) {

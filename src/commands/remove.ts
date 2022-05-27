@@ -26,8 +26,8 @@ export default class Remove extends Command {
     packageJSON.removeDependency(args['target'])
     packageJSON.removeMVNIndiectDependencies()
 
-    if (existsSync(join(process.cwd(), 'package'))) {
-      rmdirSync(join(process.cwd(), 'package'))
+    if (existsSync(join(process.cwd(), 'packages'))) {
+      rmdirSync(join(process.cwd(), 'packages'))
     }
     if (existsSync(join(process.cwd(), 'lib'))) {
       rmdirSync(join(process.cwd(), 'lib'))

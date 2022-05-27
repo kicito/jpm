@@ -32,7 +32,7 @@ describe('install', () => {
     .command(['install', 'jolie-jsoup@jpmk'])
     .it('runs install jolie-jsoup', (ctx, done) => {
       expect(ctx.stdout).to.contain('Installed')
-      expect(existsSync(join(process.cwd(), 'package', 'jolie-jsoup'))).to.eql(true)
+      expect(existsSync(join(process.cwd(), 'packages', 'jolie-jsoup'))).to.eql(true)
       glob(join(process.cwd(), 'lib', '**/*.jar'), (err, matches) => {
         expect(!!err).to.eql(false)
         expect(matches.length > 0).to.eql(true)
