@@ -1,9 +1,10 @@
 import { Command } from '@oclif/core'
 import chalk from 'chalk';
-import { existsSync } from 'fs';
 import { join } from 'path';
 import { which, exec } from 'shelljs';
 import { ERR_MVN_NOT_FOUND } from '../../errors';
+import glob from '../../glob'
+
 export default class HooksPrePack extends Command {
     static override hidden = true
 
@@ -15,15 +16,17 @@ export default class HooksPrePack extends Command {
     ]
 
     public async run(): Promise<void> {
-        const pomPath = join(process.cwd(), 'pom.xml')
-        if (existsSync(pomPath)) {
-            this.log('found pom.xml: running mvn package')
+        const matches = await glob(join(process.cwd(), '**', 'pom.xml'))
+
+        for (const match of matches) {
+            this.log(`found ${chalk.bold(match)} executing ${chalk.bold('mvn package -f ' + match)}  `)
             if (!which('mvn')) {
                 throw ERR_MVN_NOT_FOUND
             }
-            if (exec('mvn package').code !== 0) {
+            if (exec('mvn package -f ' + match).code !== 0) {
                 throw new Error('Error: mvn package failed');
             }
+
         }
     }
 }

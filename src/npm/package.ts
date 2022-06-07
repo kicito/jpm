@@ -1,12 +1,11 @@
 import fetch from 'node-fetch'
 import { Artifact } from '../mvn'
 import type { JSONSchemaForNPMPackageJsonWithJolieSPackageManager } from '../packageJSON/types'
-import { basename, join } from 'node:path'
-import { copyFileSync, existsSync, mkdirSync } from 'node:fs'
-import { download } from '../downloader'
+import { join } from 'node:path'
+import { existsSync, mkdirSync } from 'node:fs'
+import { download, copyJARToDir } from '../downloader'
 import { tmpdir } from 'node:os'
 import decompress from 'decompress'
-import glob from 'glob'
 import semver from 'semver'
 import { ERR_TARGET_NOT_JPM_PACKAGE } from '../errors'
 
@@ -112,20 +111,7 @@ class Package {
       await download(dep.#getTarDataURL(), tmpDir)
       const packageDir = join(packageRootDir, dep.packageName)
       await decompress(tmpDir, packageDir, { strip: 1 })
-      await new Promise<void>((resolve, reject) => {
-        glob(join(packageDir, '**/*.jar'), (err, matches) => {
-          if (err) {
-            return reject(err)
-          }
-          if (!existsSync(libDir)) {
-            mkdirSync(libDir, { recursive: true })
-          }
-          for (const match of matches) {
-            copyFileSync(match, join(libDir, basename(match)))
-          }
-          resolve()
-        })
-      })
+      await copyJARToDir(packageDir, libDir)
     }
   }
 

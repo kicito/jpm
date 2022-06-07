@@ -1,7 +1,7 @@
 import { Command, Flags } from '@oclif/core'
 import { ERR_NOT_JPM } from '../../errors'
 import chalk from 'chalk'
-export default class HooksPreinstall extends Command {
+export default class HooksPreInstall extends Command {
   static override hidden = true
   static override description = `Hooks script to run before jpm package is installed.
   Currently, it checks and throw error if the package manager is not ${chalk.bold('jpm')}
@@ -12,11 +12,11 @@ export default class HooksPreinstall extends Command {
   ]
 
   static override flags = {
-    allowGlobal: Flags.boolean({ description: 'allow npm install -g jolie-package' })
+    allowGlobal: Flags.boolean({ description: `allow ${chalk.bold('npm install -g jolie-package')}` })
   }
 
   public async run(): Promise<void> {
-    const { flags } = await this.parse(HooksPreinstall)
+    const { flags } = await this.parse(HooksPreInstall)
     if (flags.allowGlobal && process.env['npm_config_global'] === 'true') {
       return
     }
