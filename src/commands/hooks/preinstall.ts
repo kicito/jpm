@@ -17,6 +17,11 @@ export default class HooksPreInstall extends Command {
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(HooksPreInstall)
+
+    if (process.env['npm_command'] === 'install') { // allow npm install
+      return
+    }
+
     if (flags.allowGlobal && process.env['npm_config_global'] === 'true') {
       return
     }
