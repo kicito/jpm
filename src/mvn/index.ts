@@ -190,6 +190,12 @@ export declare namespace PomParsingResult {
   }
 }
 
+/**
+ * Guess the target if it is an npm hosted package
+ *
+ * @param {string} target target package name
+ * @return {boolean}
+ */
 export const guessIfMVNPackage = (target: string): boolean => {
   if (target.includes(':')) {
     return true
@@ -203,6 +209,13 @@ type ParsePomOpt = {
   filePath: string
 }
 
+/**
+ * Parses pom file into a Project type
+ * 
+ * @export parsePom
+ * @param {Partial<ParsePomOpt>} opts
+ * @return {Promise<PomParsingResult.Project>}
+ */
 export const parsePom = (opts: Partial<ParsePomOpt>): Promise<PomParsingResult.Project> => {
   return new Promise(
     (resolve, reject) => {
@@ -240,18 +253,43 @@ export const parsePom = (opts: Partial<ParsePomOpt>): Promise<PomParsingResult.P
   )
 }
 
+/**
+ * Filters non-necessary dependencies to run jolie's java service.
+ * 
+ * @export filterDependencies
+ * @param {PomParsingResult.Dependency[]} deps
+ * @return {PomParsingResult.Dependency[]}
+ */
 export const filterDependencies = (deps: PomParsingResult.Dependency[]): PomParsingResult.Dependency[] => {
   return deps.filter((e) => {
     return e.groupid !== 'org.jolie-lang' && e.scope !== 'test'
   })
 }
 
+/**
+ * Merges properties declared on apply's to main, main will have highest precedence.
+ *
+ * @export mergeProperties
+ * @param {Artifact} main main Artifact
+ * @param {Artifact[]} apply sub Artifacts
+ * @return {PomParsingResult.Properties}
+ */
 export const mergeProperties = (main: Artifact, apply: Artifact[]): PomParsingResult.Properties => {
   return [main, ...apply].reduce((prev, curr) => {
     return { ...(curr.pom)!.properties, ...prev }
   }, {})
 }
 
+/**
+ * Resolves version of the distribution from properties, version defined in passing pom object will have highest precedence
+ * otherwise return latest
+ *
+ * @export resolveVersion
+ * @param {string} versionStr
+ * @param {PomParsingResult.Project} pom
+ * @param {PomParsingResult.Properties} [additionalProperties]
+ * @return {*}  {string}
+ */
 export const resolveVersion = (versionStr: string, pom: PomParsingResult.Project, additionalProperties?: PomParsingResult.Properties): string => {
   if (versionStr.startsWith('${')) {
     const propTarget = versionStr.substring(2, versionStr.length - 1)
@@ -269,6 +307,13 @@ export const resolveVersion = (versionStr: string, pom: PomParsingResult.Project
   return versionStr
 }
 
+/**
+ * Recursively fetches parent Artifacts defined in rootProject
+ *
+ * @export fetchParent
+ * @param {PomParsingResult.Project} rootProject
+ * @return {*}  {Promise<Artifact[]>}
+ */
 export const fetchParent = async (rootProject: PomParsingResult.Project): Promise<Artifact[]> => {
   const res: Artifact[] = []
   while (rootProject.parent) {
@@ -287,7 +332,13 @@ export const fetchParent = async (rootProject: PomParsingResult.Project): Promis
   }
   return res
 }
-
+/**
+ * Merges dependenciesmanagement of root and its parents fields into one
+ *
+ * @param {Artifact} root
+ * @param {Artifact[]} parents
+ * @return {*}  {Array<PomParsingResult.Dependency>}
+ */
 export const mergeDependenciesManagement = (root: Artifact, parents: Artifact[]): Array<PomParsingResult.Dependency> => {
   const res: Array<PomParsingResult.Dependency> = [] as Array<PomParsingResult.Dependency>
   if (root.pom?.dependencymanagement) {
@@ -300,5 +351,3 @@ export const mergeDependenciesManagement = (root: Artifact, parents: Artifact[])
   }
   return res
 }
-
-// export const mapVersionWithProperties()

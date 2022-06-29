@@ -5,18 +5,61 @@ import { ERR_JPM_EXISTS } from '../errors'
 import Artifact from '../mvn/artifact'
 import { Package } from '../npm'
 
+/**
+ * A class representing package.json content
+ * 
+ * @export
+ * @class PackageJSON
+ */
 export default class PackageJSON {
+
+
+  /**
+   * Path to the package.json file
+   *
+   * @type {string}
+   * @memberof PackageJSON
+   */
   path: string
+
+
+  /**
+   * Virtual content in the corresponding package.json
+   *
+   * @type {JSONSchemaForNPMPackageJsonWithJolieSPackageManager}
+   * @memberof PackageJSON
+   */
   content: JSONSchemaForNPMPackageJsonWithJolieSPackageManager
+
+
+  /**
+   * Creates an instance of PackageJSON.
+   * @param {string} [path='.'] directory where package.json reside, appends "/package.json" if the input is not package.json
+   * @memberof PackageJSON
+   */
   constructor(path: string = '.') {
     this.path = path.endsWith('package.json') ? path : resolve(path, 'package.json')
     this.content = <JSONSchemaForNPMPackageJsonWithJolieSPackageManager>JSON.parse(readFileSync(this.path, 'utf-8'))
   }
 
-  isJPM() {
+
+  /**
+   * Checks if the corresponding PackageJSON is a jpm package by observing `jpm` field
+   *
+   * @return {boolean}
+   * @memberof PackageJSON
+   */
+  isJPM(): boolean {
     return !!this.content.jpm
   }
 
+  /**
+   * Initialize JPM field on the corresponding PackageJSON
+   * * this method writes content to the file
+   *
+   * @throws { ERR_JPM_EXISTS } if jpm field is already exists in the content
+   * @memberof PackageJSON
+   */
   init() {
     if (this.content.jpm) {
       throw ERR_JPM_EXISTS
@@ -26,8 +69,15 @@ export default class PackageJSON {
     this.#writeToFile()
   }
 
+  /**
+   * Adds npm hosted jolie packages as dependency
+   * * this method writes content to the file
+   *
+   * @param {Package[]} pkgs packages to add
+   * @memberof PackageJSON
+   */
   addJPMDependencies(pkgs: Package[]) {
-    const jpmDep: { [key: string]: any } = {}
+    const jpmDep: { [key: string]: string } = {}
 
     for (const pkg of pkgs) {
       jpmDep[pkg.packageName] = pkg.version
@@ -37,24 +87,57 @@ export default class PackageJSON {
     this.#writeToFile()
   }
 
-  addMVNDependencies(root?: Artifact, deps?: Artifact[]) {
-    if (root) {
-      const mvnDep: { [key: string]: any } = {}
-      mvnDep[`${root.groupID}:${root.artifactID}` as string] = root.version
-      this.content.jpm.mavenDependencies = { ...this.content.jpm.mavenDependencies, ...mvnDep }
-    }
+  /**
+   * Adds maven hosted java artifact as dependency additional sub-dependencies may included
+   * * this method writes content to the file
+   * 
+   * * main dependency will be written in jpm.mavenDependencies, while the jpm.mavenIndirectDependencies describes sub-dependencies
+   *
+   * @param {Artifact} [root] main artifact
+   * @param {Artifact[]} [deps] dependencies of root artifact
+   * @memberof PackageJSON
+   */
+  addMVNDependencies(root: Artifact, deps?: Artifact[]) {
+    const mvnDep: { [key: string]: any } = {}
+    mvnDep[`${root.groupID}:${root.artifactID}` as string] = root.version
+    this.content.jpm.mavenDependencies = { ...this.content.jpm.mavenDependencies, ...mvnDep }
 
     if (deps) {
-      const mvnIndirectDep: { [key: string]: any } = {}
-      for (const dep of deps) {
-        mvnIndirectDep[`${dep.groupID}:${dep.artifactID}`] = dep.version
-      }
-      this.content.jpm.mavenIndirectDependencies = { ...this.content.jpm.mavenIndirectDependencies, ...mvnIndirectDep }
+      this.addIndirectMVNDependencies(deps)
     }
 
     this.#writeToFile()
   }
-  
+
+
+  /**
+   * Adds indirect maven hosted dependencies to the project
+   * * this method writes content to the file
+   * 
+   * @see {@link addMVNDependencies} 
+   *
+   * @param {Artifact[]} deps
+   * @param {boolean} [writes=false] should writes to files
+   * @memberof PackageJSON
+   */
+  addIndirectMVNDependencies(deps: Artifact[], writes: boolean = false) {
+    const mvnIndirectDep: { [key: string]: any } = {}
+    for (const dep of deps) {
+      mvnIndirectDep[`${dep.groupID}:${dep.artifactID}`] = dep.version
+    }
+    this.content.jpm.mavenIndirectDependencies = { ...this.content.jpm.mavenIndirectDependencies, ...mvnIndirectDep }
+
+    if (writes) {
+      this.#writeToFile()
+    }
+  }
+
+  /**
+   * Get npm hosted dependencies defined in corresponding package.json
+   *
+   * @return {Package[]} npm hosted dependencies
+   * @memberof PackageJSON
+   */
   getJPMDependencies(): Package[] {
     const res = [] as Package[]
 
@@ -67,6 +150,12 @@ export default class PackageJSON {
     return res
   }
 
+  /**
+   * Get maven hosted dependencies defined in corresponding  package.json
+   *
+   * @return {*}  {Artifact[]}
+   * @memberof PackageJSON
+   */
   getMVNDependencies(): Artifact[] {
     const res = [] as Artifact[]
 
@@ -85,7 +174,14 @@ export default class PackageJSON {
     return res
   }
 
-  removeDependency(target: string){
+  /**
+   * Removes dependency by key
+   * * this method writes content to the file
+   *
+   * @param {string} target
+   * @memberof PackageJSON
+   */
+  removeDependency(target: string) {
     if (this.content.jpm.mavenDependencies && this.content.jpm.mavenDependencies[target]) {
       delete this.content.jpm.mavenDependencies[target]
     }
@@ -98,8 +194,13 @@ export default class PackageJSON {
   }
 
 
-
-  removeMVNIndiectDependencies(){
+  /**
+   * clear content inside mavenIndirectDependencies
+   * * this method writes content to the file
+   *
+   * @memberof PackageJSON
+   */
+  clearMVNIndirectDependencies() {
 
     if (this.content.jpm.mavenIndirectDependencies) {
       this.content.jpm.mavenIndirectDependencies = {}
@@ -108,6 +209,12 @@ export default class PackageJSON {
     this.#writeToFile()
   }
 
+  /**
+   * Write virtual content to file
+   * 
+   * @private
+   * @memberof PackageJSON
+   */
   #writeToFile() {
     const data = JSON.stringify(this.content, null, 2)
     writeFileSync(this.path, data)

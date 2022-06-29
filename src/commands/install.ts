@@ -94,7 +94,7 @@ add jolie-jsoup with latest tag into the project`
         }
 
         if (mvnDeps.length > 0) {
-          packageJSON.addMVNDependencies(undefined, mvnDeps)
+          packageJSON.addIndirectMVNDependencies(mvnDeps, true)
           mvnDeps.forEach(e => this.log(`Installed ${e.toString()}`))
         }
       } else {
@@ -122,7 +122,7 @@ add jolie-jsoup with latest tag into the project`
         await Package.downloadPackageAndDependencies(join(process.cwd()), jpmDeps)
         await Artifact.downloadDistJarAndDependencies(join(process.cwd(), 'lib'), mvnDeps)
         if (mvnDeps.length > 0) {
-          packageJSON.addMVNDependencies(undefined, mvnDeps)
+          packageJSON.addIndirectMVNDependencies(mvnDeps, true)
         }
 
         if (jpmDeps.length > 0) {

@@ -1,5 +1,5 @@
 import fetch from 'node-fetch'
-import { fetchParent, MavenSearchResult, mergeProperties, parsePom, PomParsingResult, mergeDependenciesManagement, resolveVersion } from '.'
+import { fetchParent, MavenSearchResult, mergeProperties, parsePom, PomParsingResult, mergeDependenciesManagement, resolveVersion, filterDependencies } from '.'
 import {
   errorArtifactNotFound,
   ERR_MVN_CONNECTION
@@ -48,10 +48,33 @@ class Artifact {
    */
   public pom?: PomParsingResult.Project
 
+  /**
+   * Creates an instance of Artifact using target string.
+   * e.g. new Artifact("joliex.jsoup:jolie-jsoup@1.0.0") 
+   * 
+   * @param {string} target
+   * @memberof Artifact
+   */
   constructor(target: string);
+
+  /**
+   * Creates an instance of Artifact using separated identifier of groupID, artifactID, and version
+   * @param {string} groupID
+   * @param {string} artifactID
+   * @param {string} version
+   * @memberof Artifact
+   */
   constructor(groupID: string, artifactID: string, version: string);
 
+
+  /**
+   * Constructor implementation
+   * @param {...string[]} args
+   * @memberof Artifact
+   * @throws {Error} illegal number of args
+   */
   constructor(...args: string[]) {
+    // constructor(target: string) case
     if (args.length === 1) {
       const target = args[0]!
       let groupIDAndArtifactID: string
@@ -70,6 +93,8 @@ class Artifact {
       console.log(this.toString())
       return
     }
+
+    // constructor(groupID: string, artifactID: string, version: string) case
     if (args.length === 3) {
       this.groupID = args[0]!
       this.artifactID = args[1]!
@@ -80,17 +105,31 @@ class Artifact {
     throw Error('illegal number of args')
   }
 
-  #getRepoPath = (): string =>
+  /**
+   * Construct maven repository path from the corresponding Artifact.
+   * 
+   * @return {string} url path to the artifact
+   *
+   * @memberof Artifact
+   */
+   #getRepoPath = (): string =>
     `${this.groupID.replace(/\./g, '/')}/${this.artifactID}/${this.version}`
 
+  /**
+   * Construct pom on maven repository path from the corresponding Artifact.
+   * 
+   * @return {string} url path to the artifact
+   *
+   * @memberof Artifact
+   */
   getPOMName = (): string => `${this.artifactID}-${this.version}.pom`
 
   /**
-   * generate endpoint to retrieve pom file of the artifact
+   * Generate endpoint to retrieve pom file of the artifact
    *
    * @param {string} [prefix="https://repo1.maven.org/maven2"] base url
    * @memberof Artifact
-   * @return url to retrieve pom prefix/group/artifact/version/artifactID-version.pom
+   * @return {string} url to retrieve pom prefix/group/artifact/version/artifactID-version.pom
    */
   #getPOMURL = (prefix = 'https://repo1.maven.org/maven2'): string =>
     `${prefix}/${this.#getRepoPath()}/${this.getPOMName()}`
@@ -100,7 +139,7 @@ class Artifact {
    *
    * @param {string} [prefix="https://repo1.maven.org/maven2"] base url
    * @memberof Artifact
-   * @return url to retrieve pom prefix/group/artifact/version/artifactID-version.jar
+   * @return {string} url to retrieve pom prefix/group/artifact/version/artifactID-version.jar
    */
   getJARURL = (prefix = 'https://repo1.maven.org/maven2'): string =>
     `${prefix}/${this.#getRepoPath()}/${this.getDistJAR()}`
@@ -108,7 +147,7 @@ class Artifact {
   /**
    * Search latest version of an artifact on maven repository
    *
-   * @return {*}  {Promise<string>} the latest version on maven repository
+   * @return {Promise<string>} the latest version on maven repository
    *
    * @throws {ERR_MVN_CONNECTION} unable to connect to maven repository
    * @throws {ERR_ARTIFACT_NOT_FOUND} the given information of the artifact was not found on maven repository
@@ -141,6 +180,13 @@ class Artifact {
     return docs[0]!.latestVersion
   }
 
+  /**
+   * Fetch pom.xml from the repository and parsed into Project object
+   *
+   * @return {Promise<PomParsingResult.Project>} Project object representing pom
+   *
+   * @memberof Artifact
+   */
   async getPOM(): Promise<PomParsingResult.Project> {
     if (this.pom) {
       return this.pom
@@ -166,6 +212,13 @@ class Artifact {
     }
   }
 
+  /**
+   * Apply properties defined in pom.xml to where it reference in versions
+   *
+   * @return {void}
+   *
+   * @memberof Artifact
+   */
   resolveProperties(properties: PomParsingResult.Properties, dependencymanagement: PomParsingResult.Dependency[]): void {
     if (this.pom!.dependencies) {
       for (const d of this.pom!.dependencies!.dependency) {
@@ -174,7 +227,7 @@ class Artifact {
           version = dependencymanagement.find(e => e.groupid === d.groupid && e.artifactid === d.artifactid)?.version || ''
         }
         if (version === '') {
-          logger(`Unable to resolve package version of ${d.groupid}:${d.artifactid}, from the dependeciesmanagement`)
+          logger(`Unable to resolve package version of ${d.groupid}:${d.artifactid}, from the dependencies`)
         }
         d.version = resolveVersion(version!, this.pom!, properties)
       }
@@ -194,14 +247,30 @@ class Artifact {
     }
   }
 
+  /**
+   * Filter out unnecessary dependencies from the pom properties.
+   * 
+   * Note: this method modifies the virtual pom properties.
+   * 
+   * @return {void}
+   *
+   * @memberof Artifact
+   */
   filterDependencies(): void {
     if (this.pom!.dependencies) {
-      this.pom!.dependencies.dependency = this.pom!.dependencies.dependency.filter((e) =>
-        e.groupid !== 'org.jolie-lang' && e.scope !== 'test'
-      )
+      this.pom!.dependencies.dependency = filterDependencies(this.pom!.dependencies.dependency)
     }
   }
 
+  /**
+   * Get list of dependencies of the Artifact.
+   * 
+   * Note: this method modifies the virtual pom properties.
+   * 
+   * @return {Promise<Artifact[]>}
+   *
+   * @memberof Artifact
+   */
   async getArtifactDependencies(): Promise<Artifact[]> {
     const res: Artifact[] = [this]
     const pom = await this.getPOM()
@@ -229,22 +298,29 @@ class Artifact {
     return res
   }
 
-  async #downloadDistJar(dist: string): Promise<void> {
+  /**
+   * Download Jar of the artifact from maven central repository, save to the destination path.
+   * 
+   * @param {string} dest saving destination
+   *
+   * @memberof Artifact
+   */
+  async #downloadDistJar(dest: string): Promise<void> {
     if (localRepo.isArtifactExists(this)) {
       try {
-        localRepo.downloadJAR(this, join(dist, this.getDistJAR()))
+        localRepo.downloadJAR(this, join(dest, this.getDistJAR()))
         return
       } catch (e) {
         logger('unable to download jar from local repository', e)
       }
     }
-    await download(this.getJARURL(), join(dist, this.getDistJAR()))
+    await download(this.getJARURL(), join(dest, this.getDistJAR()))
   }
 
   /**
-   * generate distribution jar file name
+   * Generate distribution jar file name
    *
-   * @return {*}  {string} distribution jar file name
+   * @return {string} distribution jar file name
    *
    * @memberof Artifact
    */
@@ -256,12 +332,23 @@ class Artifact {
     return `${this.groupID}:${this.artifactID}@${this.version}`
   }
 
-  static async downloadDistJarAndDependencies(dist: string, dependencies: Artifact[]): Promise<void> {
-    if (!existsSync(dist)) {
-      mkdirSync(dist, { recursive: true })
+  /**
+   * Download Jar of the from maven central repository. To the destination path 
+   * 
+   * Note: this method modifies the virtual pom properties.
+   * 
+   * @param {string} Destination
+   * @param {string} Destination
+   * @return {string} 
+   *
+   * @memberof Artifact
+   */
+  static async downloadDistJarAndDependencies(dest: string, dependencies: Artifact[]): Promise<void> {
+    if (!existsSync(dest)) {
+      mkdirSync(dest, { recursive: true })
     }
     for (const dep of dependencies) {
-      await dep.#downloadDistJar(dist)
+      await dep.#downloadDistJar(dest)
     }
   }
 }

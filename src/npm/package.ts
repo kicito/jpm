@@ -31,6 +31,12 @@ class Package {
   */
   version: string
 
+  /**
+   * Meta data content from the registry
+   *
+   * @type {Record<string, unknown>}
+   * @memberof Package
+   */
   meta?: Record<string, unknown>
 
   constructor(target: string) {
@@ -50,22 +56,48 @@ class Package {
     }
   }
 
-  #getMetaDataURL(prefix = 'https://registry.npmjs.com'): string {
+  /**
+   * Get url of the meta data of the package in registry
+   *
+   * @param {string} [prefix='https://registry.npmjs.com']
+   * @return {string} 
+   * @memberof Package
+   */
+   #getMetaDataURL(prefix = 'https://registry.npmjs.com'): string {
     return `${prefix}/${this.packageName}`
   }
 
+  /**
+   * Get url of the tar file in registry
+   *
+   * @param {string} [prefix='https://registry.npmjs.com']
+   * @return {string} 
+   * @memberof Package
+   */
   #getTarDataURL(prefix = 'https://registry.npmjs.com'): string {
     return `${prefix}/${this.packageName}/-/${this.#tarBallName()}-${this.version}.tgz`
   }
 
+  /**
+   * Get tarball file name in registry
+   *
+   * @param {string} [prefix='https://registry.npmjs.com']
+   * @return {string} 
+   * @memberof Package
+   */
   #tarBallName(): string {
     return this.packageName.includes('/') ? this.packageName.split('/')[1]! : this.packageName
   }
 
+  /**
+   * Get list of dependency this package needs
+   * 
+   * @returns {Promise<(Package | Artifact)[]>} list of packages or artifacts
+   * @throws {ERR_TARGET_NOT_JPM_PACKAGE} if current Package instance is not valid
+   */
   async getDependencies(): Promise<(Package | Artifact)[]> {
     const res = [this] as (Package | Artifact)[]
-    const response = await fetch(this.#getMetaDataURL())
-    this.meta = await response.json()
+    this.meta = this.meta ?this.meta: await (await fetch(this.#getMetaDataURL())).json()
     if (!semver.valid(this.version)) {
       this.version = (this.meta!['dist-tags']! as Record<string, string>)[this.version]!
     }

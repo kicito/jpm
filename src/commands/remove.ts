@@ -24,7 +24,7 @@ export default class Remove extends Command {
     }
     const { args } = await this.parse(Remove)
     packageJSON.removeDependency(args['target'])
-    packageJSON.removeMVNIndiectDependencies()
+    packageJSON.clearMVNIndirectDependencies()
 
     if (existsSync(join(process.cwd(), 'packages'))) {
       rmdirSync(join(process.cwd(), 'packages'))
