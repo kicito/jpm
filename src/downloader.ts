@@ -1,9 +1,10 @@
 import util from 'node:util'
-import { copyFileSync, createWriteStream, existsSync, mkdirSync } from 'node:fs'
+import { copyFileSync, createWriteStream } from 'node:fs'
 import { pipeline } from 'node:stream'
 import fetch from 'node-fetch'
 import { basename, join } from 'node:path'
 import glob from './glob'
+import { mkdirIfNotExist } from './fs'
 
 const streamPipeline = util.promisify(pipeline)
 
@@ -32,9 +33,7 @@ export async function copyJARToDir(baseDir: string, targetDir: string) {
 
   const matches = await glob(join(baseDir, '**/*.jar'))
 
-  if (!existsSync(targetDir)) {
-    mkdirSync(targetDir, { recursive: true })
-  }
+  mkdirIfNotExist(targetDir)
 
   for (const match of matches) {
     copyFileSync(match, join(targetDir, basename(match)))

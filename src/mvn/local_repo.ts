@@ -1,9 +1,9 @@
 
 import { exec } from 'shelljs'
-import type Artifact from './artifact'
+import type Project from './project'
 import { join } from 'node:path'
 import { readFileSync, accessSync, constants, copyFileSync } from 'node:fs'
-import { errorArtifactNotFound } from '../errors'
+import { errorProjectNotFound } from '../errors'
 
 /**
  * Defined class to manage maven dependency stored in local machine
@@ -17,26 +17,26 @@ class MVNLocalRepo {
   }
 
   /**
-   * Build system path to the Artifact on local machine
+   * Build system path to the Project on local machine
    *
-   * @param {Artifact} artifact
-   * @return {string} path to Artifacts
+   * @param {Project} project
+   * @return {string} path to Projects
    * @memberof MVNLocalRepo
    */
-  #buildArtifactPath(artifact: Artifact): string {
-    return join(this.path, ...artifact.groupID.split('.'), artifact.artifactID, artifact.version)
+  #buildProjectPath(project: Project): string {
+    return join(this.path, ...project.groupID.split('.'), project.artifactID, project.version)
   }
 
   /**
-   * Check if the Artifact is downloaded to the local repository
+   * Check if the Project is downloaded to the local repository
    *
-   * @param {Artifact} artifact
+   * @param {Project} project
    * @return {boolean}
    * @memberof MVNLocalRepo
    */
-  isArtifactExists(artifact: Artifact): boolean {
+  isProjectExists(project: Project): boolean {
     try {
-      accessSync(join(this.#buildArtifactPath(artifact), artifact.getPOMName()), constants.R_OK)
+      accessSync(join(this.#buildProjectPath(project), project.getPOMName()), constants.R_OK)
       return true
     } catch (e) {
       return false
@@ -46,32 +46,32 @@ class MVNLocalRepo {
   /**
    * Retrieve pom file from local repository
    *
-   * @param {Artifact} artifact
+   * @param {Project} project
    * @return {*}  {string}
    * @memberof MVNLocalRepo
    */
-  getPOM(artifact: Artifact): string {
-    if (this.isArtifactExists(artifact)) {
-      return readFileSync(join(this.#buildArtifactPath(artifact), artifact.getPOMName()), 'utf-8')
+  getPOM(project: Project): string {
+    if (this.isProjectExists(project)) {
+      return readFileSync(join(this.#buildProjectPath(project), project.getPOMName()), 'utf-8')
     } else {
-      throw errorArtifactNotFound(artifact.toString())
+      throw errorProjectNotFound(project.toString())
     }
   }
 
   /**
-   * Copy Jar of the artifact to destination
+   * Copy Jar of the project to destination
    *
-   * @param {Artifact} artifact
+   * @param {Project} project
    * @param {string} destination
    * @return {void} 
-   * @throws {ERR_ARTIFACT_NOT_FOUND} If artifact is not exists
+   * @throws {ERR_ARTIFACT_NOT_FOUND} If project is not exists
    * @memberof MVNLocalRepo
    */
-  downloadJAR(artifact: Artifact, destination: string) {
-    if (this.isArtifactExists(artifact)) {
-      return copyFileSync(join(this.#buildArtifactPath(artifact), artifact.getDistJAR()), destination)
+  downloadJAR(project: Project, destination: string) {
+    if (this.isProjectExists(project)) {
+      return copyFileSync(join(this.#buildProjectPath(project), project.getDistJAR()), destination)
     } else {
-      throw errorArtifactNotFound(artifact.toString())
+      throw errorProjectNotFound(project.toString())
     }
   }
 }

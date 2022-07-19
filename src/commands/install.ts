@@ -1,13 +1,20 @@
 import { Command, Flags } from '@oclif/core'
 
-import { Artifact, guessIfMVNPackage } from '../mvn'
+import { Project, guessIfMVNPackage } from '../mvn'
 import { Package, guessIfNPMPackage } from '../npm'
 import { errorImportTarget, ERR_NOT_JPM_PACKAGE } from '../errors'
 import { join } from 'path'
 import PackageJSON from '../packageJSON'
+import LocalProject from '../mvn/local_project'
 
 type RepoType = 'mvn' | 'npm'
 
+/**
+ * Guess repository to retrieve the library
+ *
+ * @param {string} target
+ * @return {RepoType}
+ */
 const guessRepo = (target: string): RepoType => {
   if (guessIfMVNPackage(target)) {
     return 'mvn'
@@ -20,12 +27,16 @@ const guessRepo = (target: string): RepoType => {
   throw errorImportTarget(target)
 }
 
-const buildArtifactFromTarget = (target: string): Artifact => {
-  return new Artifact(target)
+const buildProjectFromTarget = (target: string): Project => {
+  return new Project(target)
 }
 
 const buildPackageFromTarget = (target: string): Package => {
   return new Package(target)
+}
+
+type InstallTargetOptions = {
+  repo: RepoType
 }
 
 export default class Install extends Command {
@@ -48,87 +59,139 @@ add jolie-jsoup with latest tag into the project`
 
   static override args = [{ name: 'target', description: 'Target package' }]
 
-  async run(): Promise<void> {
+
+  /**
+   * Read content from package.json
+   *
+   * @return {PackageJSON}
+   * @memberof Install
+   * @throws {ERR_NOT_JPM_PACKAGE} When target package.json is not jpm compatible.
+   */
+  readPackageJSON(): PackageJSON {
     const packageJSON = new PackageJSON()
     if (!packageJSON.isJPM()) {
       throw ERR_NOT_JPM_PACKAGE
     }
+    return packageJSON
+  }
+
+  /**
+   * `jpm install` 
+   *
+   * @return {Promise<void>}
+   * @memberof Install
+   */
+  async install(): Promise<void> {
+    const packageJSON = this.readPackageJSON()
+    const mvnDeps = packageJSON.getMVNDependencies()
+    await Project.downloadDistJarAndDependencies(join(process.cwd(), 'lib'), mvnDeps)
+
+    const deps = packageJSON.getJPMDependencies()
+    for (const dep of deps) {
+      const ds = await dep.getDependencies()
+
+      const jpmDeps = [] as Package[]
+      const mvnDeps = [] as Project[]
+
+      for (const dep of ds) {
+        if (dep instanceof Project) {
+          mvnDeps.push(dep)
+        } else if (dep instanceof Package) {
+          jpmDeps.push(dep)
+        }
+      }
+      await Package.downloadPackageAndDependencies(join(process.cwd()), jpmDeps)
+      await Project.downloadDistJarAndDependencies(join(process.cwd(), 'lib'), mvnDeps)
+      if (mvnDeps.length > 0) {
+        packageJSON.addIndirectMVNDependencies(mvnDeps, true)
+      }
+
+      if (jpmDeps.length > 0) {
+        packageJSON.addJPMDependencies(jpmDeps)
+      }
+    }
+
+  }
+
+  async installMVNTarget(target: Project): Promise<void> {
+    const packageJSON = this.readPackageJSON()
+
+    if (target.version === 'latest') {
+      target.version = await target.getLatestProjectVersion()
+    }
+    const deps = await target.getProjectDependencies()
+    await Project.downloadDistJarAndDependencies(join(process.cwd(), 'lib'), deps)
+
+    packageJSON.addMVNDependencies(deps[0]!, deps.slice(1))
+    if (LocalProject.isMavenProject()) {
+      const localPom = await LocalProject.load()
+      this.log('Adding', target.toString(), 'to pom.xml')
+      localPom.addDependencies(target)
+    }
+    deps.forEach(e => this.log(`Installed ${e.toString()}`))
+  }
+
+  async installNPMTarget(target: Package): Promise<void> {
+    const packageJSON = this.readPackageJSON()
+
+    const deps = await target.getDependencies()
+    const jpmDeps = [] as Package[]
+    const mvnDeps = [] as Project[]
+
+    for (const dep of deps) {
+      if (dep instanceof Project) {
+        mvnDeps.push(dep)
+      } else if (dep instanceof Package) {
+        jpmDeps.push(dep)
+      }
+    }
+    await Package.downloadPackageAndDependencies(join(process.cwd()), jpmDeps)
+    await Project.downloadDistJarAndDependencies(join(process.cwd(), 'lib'), mvnDeps)
+
+    if (jpmDeps.length > 0) {
+      packageJSON.addJPMDependencies(jpmDeps)
+      jpmDeps.forEach(e => this.log(`Installed ${e.toString()}`))
+    }
+
+    if (mvnDeps.length > 0) {
+      packageJSON.addIndirectMVNDependencies(mvnDeps, true)
+      mvnDeps.forEach(e => this.log(`Installed ${e.toString()}`))
+    }
+  }
+
+  /**
+   * `jpm install TARGET`
+   *
+   * @param {string} target
+   * @param {InstallTargetOptions} [opts]
+   * @return {*}  {Promise<void>}
+   * @memberof Install
+   */
+  async installWithTarget(target: string, opts?: InstallTargetOptions): Promise<void> {
+
+    this.log(`installing ${target}`)
+
+    const repo = opts ? opts.repo : guessRepo(target)
+
+    if (repo === 'mvn') {
+      const mvnProject = buildProjectFromTarget(target)
+      await this.installMVNTarget(mvnProject)
+    } else if (repo === 'npm') {
+      const npmPackage = buildPackageFromTarget(target)
+      await this.installNPMTarget(npmPackage)
+    } else {
+      throw errorImportTarget(target)
+    }
+  }
+
+  async run(): Promise<void> {
 
     const { args } = await this.parse(Install)
 
     if (args['target']) {
-      this.log(`installing ${args['target']}`)
-
-      const repo = args['repo'] ? args['repo'] : guessRepo(args['target'])
-
-      if (repo === 'mvn') {
-        const mvnArtifact = buildArtifactFromTarget(args['target'])
-        if (mvnArtifact.version === 'latest') {
-          mvnArtifact.version = await mvnArtifact.getLatestArtifactVersion()
-        }
-        const deps = await mvnArtifact.getArtifactDependencies()
-        await Artifact.downloadDistJarAndDependencies(join(process.cwd(), 'lib'), deps)
-
-        packageJSON.addMVNDependencies(deps[0]!, deps.slice(1))
-        deps.forEach(e => this.log(`Installed ${e.toString()}`))
-
-      } else if (repo === 'npm') {
-        const npmPackage = buildPackageFromTarget(args['target'])
-        const deps = await npmPackage.getDependencies()
-        const jpmDeps = [] as Package[]
-        const mvnDeps = [] as Artifact[]
-
-        for (const dep of deps) {
-          if (dep instanceof Artifact) {
-            mvnDeps.push(dep)
-          } else if (dep instanceof Package) {
-            jpmDeps.push(dep)
-          }
-        }
-        await Package.downloadPackageAndDependencies(join(process.cwd()), jpmDeps)
-        await Artifact.downloadDistJarAndDependencies(join(process.cwd(), 'lib'), mvnDeps)
-
-        if (jpmDeps.length > 0) {
-          packageJSON.addJPMDependencies(jpmDeps)
-          jpmDeps.forEach(e => this.log(`Installed ${e.toString()}`))
-        }
-
-        if (mvnDeps.length > 0) {
-          packageJSON.addIndirectMVNDependencies(mvnDeps, true)
-          mvnDeps.forEach(e => this.log(`Installed ${e.toString()}`))
-        }
-      } else {
-        throw errorImportTarget(args['target'])
-      }
+      await this.installWithTarget(args['target'], args['repo'] ? { repo: args['repo'] } : undefined)
     } else {
-      const mvnDeps = packageJSON.getMVNDependencies()
-      await Artifact.downloadDistJarAndDependencies(join(process.cwd(), 'lib'), mvnDeps)
-
-
-      const deps = await packageJSON.getJPMDependencies()
-      for (const dep of deps) {
-        const ds = await dep.getDependencies()
-
-        const jpmDeps = [] as Package[]
-        const mvnDeps = [] as Artifact[]
-
-        for (const dep of ds) {
-          if (dep instanceof Artifact) {
-            mvnDeps.push(dep)
-          } else if (dep instanceof Package) {
-            jpmDeps.push(dep)
-          }
-        }
-        await Package.downloadPackageAndDependencies(join(process.cwd()), jpmDeps)
-        await Artifact.downloadDistJarAndDependencies(join(process.cwd(), 'lib'), mvnDeps)
-        if (mvnDeps.length > 0) {
-          packageJSON.addIndirectMVNDependencies(mvnDeps, true)
-        }
-
-        if (jpmDeps.length > 0) {
-          packageJSON.addJPMDependencies(jpmDeps)
-        }
-      }
+      await this.install();
     }
   }
 }

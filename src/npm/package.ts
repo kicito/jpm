@@ -1,8 +1,8 @@
 import fetch from 'node-fetch'
-import { Artifact } from '../mvn'
+import { Project } from '../mvn'
 import type { JSONSchemaForNPMPackageJsonWithJolieSPackageManager } from '../packageJSON/types'
 import { join } from 'node:path'
-import { existsSync, mkdirSync } from 'node:fs'
+import { mkdirIfNotExist } from '../fs'
 import { download, copyJARToDir } from '../downloader'
 import { tmpdir } from 'node:os'
 import decompress from 'decompress'
@@ -63,7 +63,7 @@ class Package {
    * @return {string} 
    * @memberof Package
    */
-   #getMetaDataURL(prefix = 'https://registry.npmjs.com'): string {
+  #getMetaDataURL(prefix = 'https://registry.npmjs.com'): string {
     return `${prefix}/${this.packageName}`
   }
 
@@ -92,12 +92,12 @@ class Package {
   /**
    * Get list of dependency this package needs
    * 
-   * @returns {Promise<(Package | Artifact)[]>} list of packages or artifacts
+   * @returns {Promise<(Package | Project)[]>} list of packages or artifacts
    * @throws {ERR_TARGET_NOT_JPM_PACKAGE} if current Package instance is not valid
    */
-  async getDependencies(): Promise<(Package | Artifact)[]> {
-    const res = [this] as (Package | Artifact)[]
-    this.meta = this.meta ?this.meta: await (await fetch(this.#getMetaDataURL())).json()
+  async getDependencies(): Promise<(Package | Project)[]> {
+    const res = [this] as (Package | Project)[]
+    this.meta = this.meta ? this.meta : await (await fetch(this.#getMetaDataURL())).json()
     if (!semver.valid(this.version)) {
       this.version = (this.meta!['dist-tags']! as Record<string, string>)[this.version]!
     }
@@ -107,12 +107,12 @@ class Package {
       if (jpmPackage.jpm) {
         if (jpmPackage.jpm.mavenDependencies) {
           Object.keys(jpmPackage.jpm.mavenDependencies as Object).forEach((key) => {
-            res.push(new Artifact(key + '@' + jpmPackage.jpm.mavenDependencies![key]))
+            res.push(new Project(key + '@' + jpmPackage.jpm.mavenDependencies![key]))
           })
         }
         if (jpmPackage.jpm.mavenIndirectDependencies) {
           Object.keys(jpmPackage.jpm.mavenIndirectDependencies as Object).forEach((key) => {
-            res.push(new Artifact(key + '@' + jpmPackage.jpm.mavenIndirectDependencies![key]))
+            res.push(new Project(key + '@' + jpmPackage.jpm.mavenIndirectDependencies![key]))
           })
         }
         if (jpmPackage.jpm.jolieDependencies) {
@@ -132,12 +132,8 @@ class Package {
     const packageRootDir = join(dist, 'packages')
     const libDir = join(dist, 'lib')
     const jpmTmpDir = join(tmpdir(), 'jpm')
-    if (!existsSync(packageRootDir)) {
-      mkdirSync(packageRootDir, { recursive: true })
-    }
-    if (!existsSync(jpmTmpDir)) {
-      mkdirSync(jpmTmpDir, { recursive: true })
-    }
+    mkdirIfNotExist(packageRootDir)
+    mkdirIfNotExist(jpmTmpDir)
     for (const dep of deps) {
       const tmpDir = join(jpmTmpDir, `${dep.#tarBallName()}-${dep.version}.tgz`)
       await download(dep.#getTarDataURL(), tmpDir)

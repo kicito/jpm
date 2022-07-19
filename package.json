@@ -48,7 +48,8 @@
     "node-fetch": "^2.6.7",
     "pom-parser": "^1.2.0",
     "semver": "^7.3.7",
-    "shelljs": "^0.8.5"
+    "shelljs": "^0.8.5",
+    "xml": "^1.0.1"
   },
   "devDependencies": {
     "@oclif/test": "^2",
@@ -62,6 +63,7 @@
     "@types/node-fetch": "^2.6.1",
     "@types/semver": "^7.3.9",
     "@types/shelljs": "^0.8.11",
+    "@types/xml": "^1.0.8",
     "@typescript-eslint/eslint-plugin": "^5.26.0",
     "@typescript-eslint/parser": "^5.26.0",
     "chai": "^4",

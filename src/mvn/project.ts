@@ -1,26 +1,26 @@
 import fetch from 'node-fetch'
 import { fetchParent, MavenSearchResult, mergeProperties, parsePom, PomParsingResult, mergeDependenciesManagement, resolveVersion, filterDependencies } from '.'
 import {
-  errorArtifactNotFound,
+  errorProjectNotFound,
   ERR_MVN_CONNECTION
 } from '../errors'
 import localRepo from './local_repo'
 import debug from 'debug'
 import { download } from '../downloader'
 import { join } from 'node:path'
-import { existsSync, mkdirSync } from 'node:fs'
+import { mkdirIfNotExist } from '../fs'
 const logger = debug('mvn')
 /**
- * Artifact represent a mvn Artifact object
+ * Project represent a mvn Project object
  *
- * @class Artifact
+ * @class Project
  */
-class Artifact {
+class Project {
   /**
    * artifact ID
    *
    * @type {string}
-   * @memberof Artifact
+   * @memberof Project
    */
   public artifactID: string
 
@@ -28,7 +28,7 @@ class Artifact {
    * group ID
    *
    * @type {string}
-   * @memberof Artifact
+   * @memberof Project
    */
   public groupID: string
 
@@ -36,7 +36,7 @@ class Artifact {
    * version
    *
    * @type {string}
-   * @memberof Artifact
+   * @memberof Project
    */
   public version: string
 
@@ -44,120 +44,128 @@ class Artifact {
    * pom
    *
    * @type {PomParsingResult.Project}
-   * @memberof Artifact
+   * @memberof Project
    */
   public pom?: PomParsingResult.Project
 
   /**
-   * Creates an instance of Artifact using target string.
-   * e.g. new Artifact("joliex.jsoup:jolie-jsoup@1.0.0") 
+   * Creates an instance of Project from project root.
+   * e.g. new Project("joliex.jsoup:jolie-jsoup@1.0.0") 
    * 
    * @param {string} target
-   * @memberof Artifact
+   * @memberof Project
    */
   constructor(target: string);
 
   /**
-   * Creates an instance of Artifact using separated identifier of groupID, artifactID, and version
-   * @param {string} groupID
-   * @param {string} artifactID
-   * @param {string} version
-   * @memberof Artifact
+   * Creates an instance of Project using target string.
+   * e.g. new Project("joliex.jsoup:jolie-jsoup@1.0.0") 
+   * 
+   * @param {string} target
+   * @memberof Project
    */
-  constructor(groupID: string, artifactID: string, version: string);
+  constructor(target: string);
+
+  /**
+   * Creates an instance of Project using separated identifier of groupID, projectID, and version
+   * @param {string} groupID
+   * @param {string} projectID
+   * @param {string} version
+   * @memberof Project
+   */
+  constructor(groupID: string, projectID: string, version: string);
 
 
   /**
    * Constructor implementation
    * @param {...string[]} args
-   * @memberof Artifact
+   * @memberof Project
    * @throws {Error} illegal number of args
    */
   constructor(...args: string[]) {
+
     // constructor(target: string) case
     if (args.length === 1) {
       const target = args[0]!
-      let groupIDAndArtifactID: string
+      let groupIDAndProjectID: string
       if (target.includes('@')) {
         const resSplitAt = target.split('@', 2)
-        groupIDAndArtifactID = resSplitAt[0]!
+        groupIDAndProjectID = resSplitAt[0]!
         this.version = resSplitAt[1]!
       } else {
-        groupIDAndArtifactID = target
+        groupIDAndProjectID = target
         this.version = 'latest'
       }
 
-      const resSplitColon = groupIDAndArtifactID.split(':', 2)
+      const resSplitColon = groupIDAndProjectID.split(':', 2)
       this.groupID = resSplitColon[0]!
       this.artifactID = resSplitColon[1]!
-      console.log(this.toString())
       return
     }
 
-    // constructor(groupID: string, artifactID: string, version: string) case
+    // constructor(groupID: string, projectID: string, version: string) case
     if (args.length === 3) {
       this.groupID = args[0]!
       this.artifactID = args[1]!
       this.version = args[2]!
-      console.log(this.toString())
       return
     }
     throw Error('illegal number of args')
   }
 
   /**
-   * Construct maven repository path from the corresponding Artifact.
+   * Construct maven repository path from the corresponding Project.
    * 
-   * @return {string} url path to the artifact
+   * @return {string} url path to the project
    *
-   * @memberof Artifact
+   * @memberof Project
    */
-   #getRepoPath = (): string =>
+  #getRepoPath = (): string =>
     `${this.groupID.replace(/\./g, '/')}/${this.artifactID}/${this.version}`
 
   /**
-   * Construct pom on maven repository path from the corresponding Artifact.
+   * Construct pom on maven repository path from the corresponding Project.
    * 
-   * @return {string} url path to the artifact
+   * @return {string} url path to the project
    *
-   * @memberof Artifact
+   * @memberof Project
    */
   getPOMName = (): string => `${this.artifactID}-${this.version}.pom`
 
   /**
-   * Generate endpoint to retrieve pom file of the artifact
+   * Generate endpoint to retrieve pom file of the project
    *
    * @param {string} [prefix="https://repo1.maven.org/maven2"] base url
-   * @memberof Artifact
+   * @memberof Project
    * @return {string} url to retrieve pom prefix/group/artifact/version/artifactID-version.pom
    */
   #getPOMURL = (prefix = 'https://repo1.maven.org/maven2'): string =>
     `${prefix}/${this.#getRepoPath()}/${this.getPOMName()}`
 
   /**
-   * generate endpoint to retrieve jar file of the artifact
+   * generate endpoint to retrieve jar file of the project
    *
    * @param {string} [prefix="https://repo1.maven.org/maven2"] base url
-   * @memberof Artifact
+   * @memberof Project
    * @return {string} url to retrieve pom prefix/group/artifact/version/artifactID-version.jar
    */
   getJARURL = (prefix = 'https://repo1.maven.org/maven2'): string =>
     `${prefix}/${this.#getRepoPath()}/${this.getDistJAR()}`
 
   /**
-   * Search latest version of an artifact on maven repository
+   * Search latest version of an project on maven repository
    *
    * @return {Promise<string>} the latest version on maven repository
    *
    * @throws {ERR_MVN_CONNECTION} unable to connect to maven repository
-   * @throws {ERR_ARTIFACT_NOT_FOUND} the given information of the artifact was not found on maven repository
-   * @memberof Artifact
+   * @throws {ERR_ARTIFACT_NOT_FOUND} the given information of the project was not found on maven repository
+   * @memberof Project
    */
-  async getLatestArtifactVersion(): Promise<string> {
+  async getLatestProjectVersion(): Promise<string> {
     const endpoint = `http://search.maven.org/solrsearch/select?q=g:%22${this.groupID}%22+AND+a:%22${this.artifactID}%22`
 
     logger(
-      'searching for groupId: %s, artifactId: %s, with url: %s',
+      'searching for groupId: %s, artifactID: %s, with url: %s',
       this.groupID,
       this.artifactID,
       endpoint
@@ -174,7 +182,7 @@ class Artifact {
     if (docs.length === 0) {
       logger('url: %s returns empty array for .docs field', endpoint)
 
-      throw errorArtifactNotFound(endpoint)
+      throw errorProjectNotFound(endpoint)
     }
 
     return docs[0]!.latestVersion
@@ -185,17 +193,17 @@ class Artifact {
    *
    * @return {Promise<PomParsingResult.Project>} Project object representing pom
    *
-   * @memberof Artifact
+   * @memberof Project
    */
   async getPOM(): Promise<PomParsingResult.Project> {
     if (this.pom) {
       return this.pom
     } else {
       if (this.version === 'latest') {
-        this.version = await this.getLatestArtifactVersion()
+        this.version = await this.getLatestProjectVersion()
       }
 
-      if (localRepo.isArtifactExists(this)) {
+      if (localRepo.isProjectExists(this)) {
         try {
           this.pom = await parsePom({ xmlContent: localRepo.getPOM(this) })
           return this.pom
@@ -204,11 +212,9 @@ class Artifact {
         }
       }
 
-      const response = await fetch(this.#getPOMURL())
-      const pomContent = await response.text()
-      const pom = await parsePom({ xmlContent: pomContent })
-      this.pom = pom
-      return pom
+      const pomContent = await (await fetch(this.#getPOMURL())).text()
+      this.pom = await parsePom({ xmlContent: pomContent })
+      return this.pom
     }
   }
 
@@ -217,7 +223,7 @@ class Artifact {
    *
    * @return {void}
    *
-   * @memberof Artifact
+   * @memberof Project
    */
   resolveProperties(properties: PomParsingResult.Properties, dependencymanagement: PomParsingResult.Dependency[]): void {
     if (this.pom!.dependencies) {
@@ -254,7 +260,7 @@ class Artifact {
    * 
    * @return {void}
    *
-   * @memberof Artifact
+   * @memberof Project
    */
   filterDependencies(): void {
     if (this.pom!.dependencies) {
@@ -263,16 +269,16 @@ class Artifact {
   }
 
   /**
-   * Get list of dependencies of the Artifact.
+   * Get list of dependencies of the Project.
    * 
    * Note: this method modifies the virtual pom properties.
    * 
-   * @return {Promise<Artifact[]>}
+   * @return {Promise<Project[]>}
    *
-   * @memberof Artifact
+   * @memberof Project
    */
-  async getArtifactDependencies(): Promise<Artifact[]> {
-    const res: Artifact[] = [this]
+  async getProjectDependencies(): Promise<Project[]> {
+    const res: Project[] = [this]
     const pom = await this.getPOM()
     let properties: PomParsingResult.Properties = pom.properties ? pom.properties : {}
     let dependencymanagement: PomParsingResult.Dependency[] = pom.dependencymanagement ? pom.dependencymanagement.dependencies.dependency : [] as PomParsingResult.Dependency[]
@@ -290,7 +296,7 @@ class Artifact {
       this.resolveProperties(properties, dependencymanagement)
 
       for (const dep of pom.dependencies?.dependency) {
-        res.push(new Artifact(
+        res.push(new Project(
           dep.groupid, dep.artifactid, dep.version!
         ))
       }
@@ -299,14 +305,14 @@ class Artifact {
   }
 
   /**
-   * Download Jar of the artifact from maven central repository, save to the destination path.
+   * Download Jar of the project from maven central repository, save to the destination path.
    * 
    * @param {string} dest saving destination
    *
-   * @memberof Artifact
+   * @memberof Project
    */
   async #downloadDistJar(dest: string): Promise<void> {
-    if (localRepo.isArtifactExists(this)) {
+    if (localRepo.isProjectExists(this)) {
       try {
         localRepo.downloadJAR(this, join(dest, this.getDistJAR()))
         return
@@ -322,7 +328,7 @@ class Artifact {
    *
    * @return {string} distribution jar file name
    *
-   * @memberof Artifact
+   * @memberof Project
    */
   getDistJAR(): string {
     return `${this.artifactID}-${this.version}.jar`
@@ -337,20 +343,18 @@ class Artifact {
    * 
    * Note: this method modifies the virtual pom properties.
    * 
-   * @param {string} Destination
-   * @param {string} Destination
+   * @param {string} dest Destination path
+   * @param {Project[]} dependencies 
    * @return {string} 
    *
-   * @memberof Artifact
+   * @memberof Project
    */
-  static async downloadDistJarAndDependencies(dest: string, dependencies: Artifact[]): Promise<void> {
-    if (!existsSync(dest)) {
-      mkdirSync(dest, { recursive: true })
-    }
+  static async downloadDistJarAndDependencies(dest: string, dependencies: Project[]): Promise<void> {
+    mkdirIfNotExist(dest)
     for (const dep of dependencies) {
       await dep.#downloadDistJar(dest)
     }
   }
 }
 
-export default Artifact
+export default Project

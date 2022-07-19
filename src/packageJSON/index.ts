@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import type { JSONSchemaForNPMPackageJsonWithJolieSPackageManager } from './types'
 import { ERR_JPM_EXISTS } from '../errors'
-import Artifact from '../mvn/artifact'
+import Project from '../mvn/project'
 import { Package } from '../npm'
 
 /**
@@ -88,16 +88,16 @@ export default class PackageJSON {
   }
 
   /**
-   * Adds maven hosted java artifact as dependency additional sub-dependencies may included
+   * Adds maven hosted java project as dependency additional sub-dependencies may included
    * * this method writes content to the file
    * 
    * * main dependency will be written in jpm.mavenDependencies, while the jpm.mavenIndirectDependencies describes sub-dependencies
    *
-   * @param {Artifact} [root] main artifact
-   * @param {Artifact[]} [deps] dependencies of root artifact
+   * @param {Project} [root] main project
+   * @param {Project[]} [deps] dependencies of root project
    * @memberof PackageJSON
    */
-  addMVNDependencies(root: Artifact, deps?: Artifact[]) {
+  addMVNDependencies(root: Project, deps?: Project[]) {
     const mvnDep: { [key: string]: any } = {}
     mvnDep[`${root.groupID}:${root.artifactID}` as string] = root.version
     this.content.jpm.mavenDependencies = { ...this.content.jpm.mavenDependencies, ...mvnDep }
@@ -116,11 +116,11 @@ export default class PackageJSON {
    * 
    * @see {@link addMVNDependencies} 
    *
-   * @param {Artifact[]} deps
+   * @param {Project[]} deps
    * @param {boolean} [writes=false] should writes to files
    * @memberof PackageJSON
    */
-  addIndirectMVNDependencies(deps: Artifact[], writes: boolean = false) {
+  addIndirectMVNDependencies(deps: Project[], writes: boolean = false) {
     const mvnIndirectDep: { [key: string]: any } = {}
     for (const dep of deps) {
       mvnIndirectDep[`${dep.groupID}:${dep.artifactID}`] = dep.version
@@ -153,21 +153,21 @@ export default class PackageJSON {
   /**
    * Get maven hosted dependencies defined in corresponding  package.json
    *
-   * @return {*}  {Artifact[]}
+   * @return {*}  {Project[]}
    * @memberof PackageJSON
    */
-  getMVNDependencies(): Artifact[] {
-    const res = [] as Artifact[]
+  getMVNDependencies(): Project[] {
+    const res = [] as Project[]
 
     if (this.content.jpm.mavenDependencies) {
       Object.keys(this.content.jpm.mavenDependencies).forEach((key) => {
-        res.push(new Artifact(key + '@' + this.content.jpm.mavenDependencies![key]))
+        res.push(new Project(key + '@' + this.content.jpm.mavenDependencies![key]))
       })
     }
 
     if (this.content.jpm.mavenIndirectDependencies) {
       Object.keys(this.content.jpm.mavenIndirectDependencies).forEach((key) => {
-        res.push(new Artifact(key + '@' + this.content.jpm.mavenIndirectDependencies![key]))
+        res.push(new Project(key + '@' + this.content.jpm.mavenIndirectDependencies![key]))
       })
     }
 

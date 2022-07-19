@@ -1,9 +1,9 @@
 /* eslint-disable no-use-before-define */
 import '../@types'
 import pomParser from 'pom-parser'
-import Artifact from './artifact'
+import Project from './project'
 import debug from 'debug'
-export { default as Artifact } from './artifact'
+export { default as Project } from './project'
 
 const logger = debug('mvn')
 // result from artifact search
@@ -270,11 +270,11 @@ export const filterDependencies = (deps: PomParsingResult.Dependency[]): PomPars
  * Merges properties declared on apply's to main, main will have highest precedence.
  *
  * @export mergeProperties
- * @param {Artifact} main main Artifact
- * @param {Artifact[]} apply sub Artifacts
+ * @param {Project} main main Project
+ * @param {Project[]} apply sub Projects
  * @return {PomParsingResult.Properties}
  */
-export const mergeProperties = (main: Artifact, apply: Artifact[]): PomParsingResult.Properties => {
+export const mergeProperties = (main: Project, apply: Project[]): PomParsingResult.Properties => {
   return [main, ...apply].reduce((prev, curr) => {
     return { ...(curr.pom)!.properties, ...prev }
   }, {})
@@ -308,26 +308,26 @@ export const resolveVersion = (versionStr: string, pom: PomParsingResult.Project
 }
 
 /**
- * Recursively fetches parent Artifacts defined in rootProject
+ * Recursively fetches parent Projects defined in rootProject
  *
  * @export fetchParent
  * @param {PomParsingResult.Project} rootProject
- * @return {*}  {Promise<Artifact[]>}
+ * @return {*}  {Promise<Project[]>}
  */
-export const fetchParent = async (rootProject: PomParsingResult.Project): Promise<Artifact[]> => {
-  const res: Artifact[] = []
+export const fetchParent = async (rootProject: PomParsingResult.Project): Promise<Project[]> => {
+  const res: Project[] = []
   while (rootProject.parent) {
     logger(`fetching parent of ${rootProject.groupid}:${rootProject.artifactid}@${rootProject.version}`)
     logger(`parent before resolve version: ${rootProject.parent.groupid}:${rootProject.parent.artifactid}@${rootProject.parent.version}`)
     const version = resolveVersion(rootProject.parent.version!, rootProject)
     logger(`parent: ${rootProject.parent.groupid}:${rootProject.parent.artifactid}@${version}`)
 
-    const parentArtifact = new Artifact(rootProject.parent.groupid, rootProject.parent.artifactid, version)
-    const parentPOM = await parentArtifact.getPOM()
-    if (res.filter((e) => e.groupID === parentArtifact.groupID && e.artifactID === parentArtifact.artifactID).length > 0) {
+    const parentProject = new Project(rootProject.parent.groupid, rootProject.parent.artifactid, version)
+    const parentPOM = await parentProject.getPOM()
+    if (res.filter((e) => e.groupID === parentProject.groupID && e.artifactID === parentProject.artifactID).length > 0) {
       break
     }
-    res.push(parentArtifact)
+    res.push(parentProject)
     rootProject = parentPOM
   }
   return res
@@ -335,18 +335,18 @@ export const fetchParent = async (rootProject: PomParsingResult.Project): Promis
 /**
  * Merges dependenciesmanagement of root and its parents fields into one
  *
- * @param {Artifact} root
- * @param {Artifact[]} parents
+ * @param {Project} root
+ * @param {Project[]} parents
  * @return {*}  {Array<PomParsingResult.Dependency>}
  */
-export const mergeDependenciesManagement = (root: Artifact, parents: Artifact[]): Array<PomParsingResult.Dependency> => {
+export const mergeDependenciesManagement = (root: Project, parents: Project[]): Array<PomParsingResult.Dependency> => {
   const res: Array<PomParsingResult.Dependency> = [] as Array<PomParsingResult.Dependency>
   if (root.pom?.dependencymanagement) {
     res.push(...root.pom?.dependencymanagement.dependencies.dependency)
   }
-  for (const artifact of parents) {
-    if (artifact.pom?.dependencymanagement) {
-      res.push(...artifact.pom?.dependencymanagement.dependencies.dependency)
+  for (const project of parents) {
+    if (project.pom?.dependencymanagement) {
+      res.push(...project.pom?.dependencymanagement.dependencies.dependency)
     }
   }
   return res

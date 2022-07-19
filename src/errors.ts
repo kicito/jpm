@@ -29,9 +29,9 @@ export const ERR_POM_PARSING: (reason: string) => Error = (reason: string) =>
     `${chalk.red('ERR_POM_PARSING')} Error parsing pom.xml file. error: ${reason}.`
   )
 
-export const errorArtifactNotFound: (reason: string) => Error = (url: string) =>
+export const errorProjectNotFound: (reason: string) => Error = (url: string) =>
   new Error(
-    `${chalk.red('ERR_ARTIFACT_NOT_FOUND')} Artifact not found, lookup path: ${url}.`
+    `${chalk.red('ERR_PROJECT_NOT_FOUND')} maven Project not found, lookup path: ${url}.`
   )
 
 export const errorImportTarget: (target: string) => Error = (target: string) =>
