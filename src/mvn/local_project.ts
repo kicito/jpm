@@ -2,6 +2,7 @@ import { parsePom, Project } from '.';
 // import debug from 'debug'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import xml from 'xml';
+import { errorDepExistsInPOM } from '../errors';
 
 // const logger = debug('mvn')
 
@@ -16,9 +17,8 @@ class LocalProject extends Project {
 
     pomContent?: string
 
-    addDependencies(dep: Project) {
+    #buildDependenciesXMLObject(): xml.XmlObject {
         const elem = []
-        this.pom!.dependencies = this.pom!.dependencies ? this.pom!.dependencies : { dependency: [] };
         for (const dep of this.pom!.dependencies!.dependency) {
             elem.push({
                 dependency: [
@@ -28,19 +28,29 @@ class LocalProject extends Project {
                 ]
             })
         }
-        elem.push({
-            dependency: [
-                { groupId: dep.groupID },
-                { artifactId: dep.artifactID },
-                { version: dep.version }
-            ]
-        })
-        this.pom?.dependencies?.dependency.push({
+        return { dependencies: elem }
+    }
+
+    addDependencies(dep: Project) {
+        this.pom!.dependencies = this.pom!.dependencies ? this.pom!.dependencies : { dependency: [] };
+        const exists = this.pom!.dependencies.dependency.find(d => d.artifactid === dep.artifactID && d.groupid === dep.groupID)
+        if (exists) {
+            throw errorDepExistsInPOM(dep.toString());
+        }
+        this.pom!.dependencies.dependency.push({
             groupid: dep.groupID,
             artifactid: dep.artifactID,
             version: dep.version
         })
-        const depsContent = xml({ dependencies: elem }, true)
+        const depsContent = xml(this.#buildDependenciesXMLObject(), true)
+        this.pomContent = this.pomContent?.replace(dependenciesRegex, depsContent) as string
+        writeFileSync('./pom.xml', this.pomContent!)
+    }
+
+    removeDependencies(dep: Project) {
+        this.pom!.dependencies = this.pom!.dependencies ? this.pom!.dependencies : { dependency: [] };
+        this.pom!.dependencies.dependency = this.pom!.dependencies.dependency.filter(d => d.artifactid !== dep.artifactID && d.groupid !== dep.groupID)
+        const depsContent = xml(this.#buildDependenciesXMLObject(), true)
         this.pomContent = this.pomContent?.replace(dependenciesRegex, depsContent) as string
         writeFileSync('./pom.xml', this.pomContent!)
     }

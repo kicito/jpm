@@ -4,6 +4,7 @@ import type { JSONSchemaForNPMPackageJsonWithJolieSPackageManager } from './type
 import { ERR_JPM_EXISTS } from '../errors'
 import Project from '../mvn/project'
 import { Package } from '../npm'
+import type { RepoType } from '../lib'
 
 /**
  * A class representing package.json content
@@ -181,13 +182,17 @@ export default class PackageJSON {
    * @param {string} target
    * @memberof PackageJSON
    */
-  removeDependency(target: string) {
-    if (this.content.jpm.mavenDependencies && this.content.jpm.mavenDependencies[target]) {
-      delete this.content.jpm.mavenDependencies[target]
+  removeDependency(target: string, type: RepoType) {
+    if (type === 'mvn') {
+      if (this.content.jpm.mavenDependencies && this.content.jpm.mavenDependencies[target]) {
+        delete this.content.jpm.mavenDependencies[target]
+      }
     }
 
-    if (this.content.jpm.jolieDependencies && this.content.jpm.jolieDependencies[target]) {
-      delete this.content.jpm.jolieDependencies[target]
+    if (type === 'npm') {
+      if (this.content.jpm.jolieDependencies && this.content.jpm.jolieDependencies[target]) {
+        delete this.content.jpm.jolieDependencies[target]
+      }
     }
 
     this.#writeToFile()

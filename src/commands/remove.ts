@@ -1,9 +1,11 @@
 import { Command } from '@oclif/core'
 import { ERR_NOT_JPM_PACKAGE } from '../errors'
 import PackageJSON from '../packageJSON'
-import { existsSync, rmdirSync } from 'fs'
+import { existsSync, rmSync } from 'node:fs'
 import { join } from 'path'
 import Install from './install'
+import LocalProject from '../mvn/local_project'
+import { buildProjectFromTarget, guessRepo } from '../lib'
 
 export default class Remove extends Command {
   static override description = `Remove Jolie related dependency to the project
@@ -23,17 +25,27 @@ export default class Remove extends Command {
       throw ERR_NOT_JPM_PACKAGE
     }
     const { args } = await this.parse(Remove)
-    packageJSON.removeDependency(args['target'])
+    const { target } = args
+    this.log(`Removing ${target}`)
+    const type = guessRepo(target)
+    packageJSON.removeDependency(target, type)
     packageJSON.clearMVNIndirectDependencies()
 
     if (existsSync(join(process.cwd(), 'packages'))) {
-      rmdirSync(join(process.cwd(), 'packages'))
+      rmSync(join(process.cwd(), 'packages'), { recursive: true, force: true })
     }
     if (existsSync(join(process.cwd(), 'lib'))) {
-      rmdirSync(join(process.cwd(), 'lib'))
+      rmSync(join(process.cwd(), 'lib'), { recursive: true, force: true })
     }
 
-    await Install.run()
+    if (LocalProject.isMavenProject() && type === 'mvn') {
+      const proj = buildProjectFromTarget(target)
+      const localPom = await LocalProject.load()
+      localPom.removeDependencies(proj)
+    }
+    this.log(`Removed ${target}`)
+
+    await Install.run([])
 
   }
 }

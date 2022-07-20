@@ -350,7 +350,9 @@ class Project {
    * @memberof Project
    */
   static async downloadDistJarAndDependencies(dest: string, dependencies: Project[]): Promise<void> {
-    mkdirIfNotExist(dest)
+    if (dependencies.length > 0) {
+      mkdirIfNotExist(dest)
+    }
     for (const dep of dependencies) {
       await dep.#downloadDistJar(dest)
     }

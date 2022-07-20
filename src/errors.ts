@@ -38,3 +38,8 @@ export const errorImportTarget: (target: string) => Error = (target: string) =>
   new Error(
     `${chalk.red('ERR_IMPORT_TARGET')} Unable to determine repository for: ${target}.`
   )
+
+export const errorDepExistsInPOM: (target: string) => Error = (target: string) =>
+  new Error(
+    `${chalk.red('DEP_EXISTS_POM')} Dependency exits in local POM for: ${target}.`
+  )

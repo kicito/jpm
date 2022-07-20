@@ -262,7 +262,7 @@ export const parsePom = (opts: Partial<ParsePomOpt>): Promise<PomParsingResult.P
  */
 export const filterDependencies = (deps: PomParsingResult.Dependency[]): PomParsingResult.Dependency[] => {
   return deps.filter((e) => {
-    return e.groupid !== 'org.jolie-lang' && e.scope !== 'test'
+    return e.groupid !== 'org.jolie-lang' && e.scope === 'runtime'
   })
 }
 

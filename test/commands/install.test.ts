@@ -5,12 +5,6 @@ import { describe, after } from 'mocha'
 import { join } from 'path'
 import { createTestDirIfNotExist, deleteTestDirIfNotExist, resourcesPath } from '../helpers/testUtil'
 describe('install', () => {
-  // test
-  //   .stdout()
-  //   .command(['install'])
-  //   .it('runs hello', ctx => {
-  //     expect(ctx.stdout).to.contain('hello world')
-  //   })
 
   after(() => {
     deleteTestDirIfNotExist()
@@ -18,7 +12,7 @@ describe('install', () => {
 
   test
     .do(() => {
-      const path = createTestDirIfNotExist('init')
+      const path = createTestDirIfNotExist('install')
       process.chdir(path)
       cpSync(join(resourcesPath, 'minimum_jpm_package.json'), join(path, 'package.json'))
     })

@@ -1,39 +1,12 @@
 import { Command, Flags } from '@oclif/core'
 
-import { Project, guessIfMVNPackage } from '../mvn'
-import { Package, guessIfNPMPackage } from '../npm'
+import { Project } from '../mvn'
+import { Package } from '../npm'
 import { errorImportTarget, ERR_NOT_JPM_PACKAGE } from '../errors'
 import { join } from 'path'
 import PackageJSON from '../packageJSON'
 import LocalProject from '../mvn/local_project'
-
-type RepoType = 'mvn' | 'npm'
-
-/**
- * Guess repository to retrieve the library
- *
- * @param {string} target
- * @return {RepoType}
- */
-const guessRepo = (target: string): RepoType => {
-  if (guessIfMVNPackage(target)) {
-    return 'mvn'
-  }
-
-  if (guessIfNPMPackage(target)) {
-    return 'npm'
-  }
-
-  throw errorImportTarget(target)
-}
-
-const buildProjectFromTarget = (target: string): Project => {
-  return new Project(target)
-}
-
-const buildPackageFromTarget = (target: string): Package => {
-  return new Package(target)
-}
+import { RepoType, guessRepo, buildProjectFromTarget, buildPackageFromTarget, } from '../lib'
 
 type InstallTargetOptions = {
   repo: RepoType
@@ -126,7 +99,11 @@ add jolie-jsoup with latest tag into the project`
     if (LocalProject.isMavenProject()) {
       const localPom = await LocalProject.load()
       this.log('Adding', target.toString(), 'to pom.xml')
-      localPom.addDependencies(target)
+      try {
+        localPom.addDependencies(target)
+      } catch (e) {
+        this.log(e + ', skip add dependency to pom')
+      }
     }
     deps.forEach(e => this.log(`Installed ${e.toString()}`))
   }
@@ -169,7 +146,7 @@ add jolie-jsoup with latest tag into the project`
    */
   async installWithTarget(target: string, opts?: InstallTargetOptions): Promise<void> {
 
-    this.log(`installing ${target}`)
+    this.log(`Installing ${target}`)
 
     const repo = opts ? opts.repo : guessRepo(target)
 
