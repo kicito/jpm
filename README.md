@@ -15,7 +15,7 @@ $ npm install -g @jolie/jpm
 $ jpm COMMAND
 running command...
 $ jpm (--version)
-@jolie/jpm/1.1.1 linux-x64 node-v16.15.0
+@jolie/jpm/1.2.0 linux-x64 node-v16.15.0
 $ jpm --help [COMMAND]
 USAGE
   $ jpm COMMAND
@@ -68,7 +68,7 @@ EXAMPLES
       add jpm related fields to package.json in specify path
 ```
 
-_See code: [dist/commands/init.ts](https://github.com/jolie/jpm/blob/v1.1.1/dist/commands/init.ts)_
+_See code: [dist/commands/init.ts](https://github.com/jolie/jpm/blob/v1.2.0/dist/commands/init.ts)_
 
 ## `jpm install [TARGET]`
 
@@ -101,7 +101,7 @@ EXAMPLES
   add jolie-jsoup with latest tag into the project
 ```
 
-_See code: [dist/commands/install.ts](https://github.com/jolie/jpm/blob/v1.1.1/dist/commands/install.ts)_
+_See code: [dist/commands/install.ts](https://github.com/jolie/jpm/blob/v1.2.0/dist/commands/install.ts)_
 
 ## `jpm remove [TARGET]`
 
@@ -126,5 +126,5 @@ EXAMPLES
       Remove jolie-jsoup from the dependencies
 ```
 
-_See code: [dist/commands/remove.ts](https://github.com/jolie/jpm/blob/v1.1.1/dist/commands/remove.ts)_
+_See code: [dist/commands/remove.ts](https://github.com/jolie/jpm/blob/v1.2.0/dist/commands/remove.ts)_
 <!-- commandsstop -->
