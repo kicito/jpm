@@ -39,6 +39,8 @@ class Package {
    */
   meta?: Record<string, unknown>
 
+  static jpmTmpDir = join(tmpdir(), 'jpm')
+
   constructor(target: string) {
     if (target.includes('@')) {
       const splitIndex = target.lastIndexOf('@')
@@ -96,7 +98,7 @@ class Package {
    * @throws {ERR_TARGET_NOT_JPM_PACKAGE} if current Package instance is not valid
    */
   async getDependencies(): Promise<(Package | Project)[]> {
-    const res = [this] as (Package | Project)[]
+    const res = [] as (Package | Project)[]
     this.meta = this.meta ? this.meta : await (await fetch(this.#getMetaDataURL())).json()
     if (!semver.valid(this.version)) {
       this.version = (this.meta!['dist-tags']! as Record<string, string>)[this.version]!
@@ -116,8 +118,8 @@ class Package {
           })
         }
         if (jpmPackage.jpm.jolieDependencies) {
-          Object.keys(jpmPackage.jpm.mavenDependencies as Object).forEach((key) => {
-            res.push(new Package(key + '@' + jpmPackage.jpm.mavenDependencies![key]))
+          Object.keys(jpmPackage.jpm.jolieDependencies as Object).forEach((key) => {
+            res.push(new Package(key + '@' + jpmPackage.jpm.jolieDependencies![key]))
           })
         }
       } else {
@@ -128,23 +130,35 @@ class Package {
     return res
   }
 
-  static async downloadPackageAndDependencies(dist: string, deps: Package[]) {
-    const packageRootDir = join(dist, 'packages')
+  static async downloadPackage(dist: string, libDir: string, pkg: Package) {
+    const packageDir = join(dist, 'packages', pkg.packageName)
+    console.log('install ', pkg.toString(), 'to', packageDir)
+    mkdirIfNotExist(packageDir)
+
+    mkdirIfNotExist(Package.jpmTmpDir)
+    const tmpDir = join(Package.jpmTmpDir, `${pkg.#tarBallName()}-${pkg.version}.tgz`)
+    await download(pkg.#getTarDataURL(), tmpDir)
+
+    await decompress(tmpDir, packageDir, { strip: 1 })
+    await copyJARToDir(packageDir, libDir)
+
+  }
+
+  static async downloadPackageAndDependencies(dist: string, pkg: Package, deps: Package[]) {
+
     const libDir = join(dist, 'lib')
-    const jpmTmpDir = join(tmpdir(), 'jpm')
-    mkdirIfNotExist(packageRootDir)
-    mkdirIfNotExist(jpmTmpDir)
+    mkdirIfNotExist(libDir)
+
+    Package.downloadPackage(dist, libDir, pkg)
+
     for (const dep of deps) {
-      const tmpDir = join(jpmTmpDir, `${dep.#tarBallName()}-${dep.version}.tgz`)
-      await download(dep.#getTarDataURL(), tmpDir)
-      const packageDir = join(packageRootDir, dep.packageName)
-      await decompress(tmpDir, packageDir, { strip: 1 })
-      await copyJARToDir(packageDir, libDir)
+      const packageDir = join(dist, 'packages', pkg.packageName)
+      Package.downloadPackage(packageDir, libDir, dep)
     }
   }
 
   toString(): string {
-    return `${this.packageName} @${this.version} `
+    return `${this.packageName}@${this.version}`
   }
 }
 

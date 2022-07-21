@@ -73,14 +73,10 @@ add jolie-jsoup with latest tag into the project`
           jpmDeps.push(dep)
         }
       }
-      await Package.downloadPackageAndDependencies(join(process.cwd()), jpmDeps)
+      await Package.downloadPackageAndDependencies(join(process.cwd()), dep, jpmDeps)
       await Project.downloadDistJarAndDependencies(join(process.cwd(), 'lib'), mvnDeps)
       if (mvnDeps.length > 0) {
         packageJSON.addIndirectMVNDependencies(mvnDeps, true)
-      }
-
-      if (jpmDeps.length > 0) {
-        packageJSON.addJPMDependencies(jpmDeps)
       }
     }
 
@@ -122,17 +118,17 @@ add jolie-jsoup with latest tag into the project`
         jpmDeps.push(dep)
       }
     }
-    await Package.downloadPackageAndDependencies(join(process.cwd()), jpmDeps)
+    await Package.downloadPackageAndDependencies(join(process.cwd()), target, jpmDeps)
     await Project.downloadDistJarAndDependencies(join(process.cwd(), 'lib'), mvnDeps)
 
+    packageJSON.addJPMDependencies([target])
     if (jpmDeps.length > 0) {
-      packageJSON.addJPMDependencies(jpmDeps)
-      jpmDeps.forEach(e => this.log(`Installed ${e.toString()}`))
+      jpmDeps.forEach(e => this.log(`Installed ${e.toString()} as ${target.toString()} dependency`))
     }
 
     if (mvnDeps.length > 0) {
       packageJSON.addIndirectMVNDependencies(mvnDeps, true)
-      mvnDeps.forEach(e => this.log(`Installed ${e.toString()}`))
+      mvnDeps.forEach(e => this.log(`Installed ${e.toString()} as ${target.toString()} dependency`))
     }
   }
 
