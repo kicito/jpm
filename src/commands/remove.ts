@@ -21,7 +21,7 @@ export default class Remove extends Command {
 
   public async run(): Promise<void> {
     const packageJSON = new PackageJSON()
-    if (!packageJSON.isJPM()) {
+    if (!packageJSON.isJolie()) {
       throw ERR_NOT_JPM_PACKAGE
     }
     const { args } = await this.parse(Remove)

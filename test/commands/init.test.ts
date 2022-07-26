@@ -17,7 +17,7 @@ describe('init', () => {
     .it('runs init', (ctx, done) => {
       expect(ctx.stdout).to.contain('Adding jpm related fields to current working directory')
       const p: PackageJSON = new PackageJSON()
-      expect(p.isJPM()).to.eql(true)
+      expect(p.isJolie()).to.eql(true)
       deleteTestDirIfNotExist()
       done()
     })

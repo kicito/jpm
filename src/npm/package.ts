@@ -106,20 +106,20 @@ class Package {
 
     if (((this.meta!['versions'] as Record<string, unknown>)[this.version] as JSONSchemaForNPMPackageJsonWithJolieSPackageManager)) {
       const jpmPackage = ((this.meta!['versions'] as Record<string, unknown>)[this.version] as JSONSchemaForNPMPackageJsonWithJolieSPackageManager)
-      if (jpmPackage.jpm) {
-        if (jpmPackage.jpm.mavenDependencies) {
-          Object.keys(jpmPackage.jpm.mavenDependencies as Object).forEach((key) => {
-            res.push(new Project(key + '@' + jpmPackage.jpm.mavenDependencies![key]))
+      if (jpmPackage.jolie) {
+        if (jpmPackage.jolie?.maven?.dependencies) {
+          Object.keys(jpmPackage.jolie!.maven!.dependencies as Object).forEach((key) => {
+            res.push(new Project(key + '@' + jpmPackage.jolie!.maven!.dependencies![key]))
           })
         }
-        if (jpmPackage.jpm.mavenIndirectDependencies) {
-          Object.keys(jpmPackage.jpm.mavenIndirectDependencies as Object).forEach((key) => {
-            res.push(new Project(key + '@' + jpmPackage.jpm.mavenIndirectDependencies![key]))
+        if (jpmPackage.jolie?.maven?.indirectDependencies) {
+          Object.keys(jpmPackage.jolie.maven.indirectDependencies as Object).forEach((key) => {
+            res.push(new Project(key + '@' + jpmPackage.jolie!.maven!.indirectDependencies![key]))
           })
         }
-        if (jpmPackage.jpm.jolieDependencies) {
-          Object.keys(jpmPackage.jpm.jolieDependencies as Object).forEach((key) => {
-            res.push(new Package(key + '@' + jpmPackage.jpm.jolieDependencies![key]))
+        if (jpmPackage.jolie.dependencies) {
+          Object.keys(jpmPackage.jolie.dependencies as Object).forEach((key) => {
+            res.push(new Package(key + '@' + jpmPackage.jolie!.dependencies![key]))
           })
         }
       } else {

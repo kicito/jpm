@@ -22,6 +22,6 @@ describe('remove', () => {
       expect(ctx.stdout).to.contain('Removed')
       const pkgStr = readFileSync(join(path, 'package.json'), 'utf8')
       const pkgJson = JSON.parse(pkgStr)
-      expect(Object.keys(pkgJson.jpm.mavenDependencies).length === 0)
+      expect(Object.keys(pkgJson.jolie.maven.dependencies).length === 0)
     })
 })

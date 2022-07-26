@@ -45,28 +45,28 @@ export default class PackageJSON {
 
 
   /**
-   * Checks if the corresponding PackageJSON is a jpm package by observing `jpm` field
+   * Checks if the corresponding PackageJSON is a jpm package by observing `jolie` field
    *
    * @return {boolean}
    * @memberof PackageJSON
    */
-  isJPM(): boolean {
-    return !!this.content.jpm
+  isJolie(): boolean {
+    return !!this.content.jolie
   }
 
   /**
    * Initialize JPM field on the corresponding PackageJSON
    * * this method writes content to the file
    *
-   * @throws { ERR_JPM_EXISTS } if jpm field is already exists in the content
+   * @throws { ERR_JPM_EXISTS } if jolie field is already exists in the content
    * @memberof PackageJSON
    */
   init() {
-    if (this.content.jpm) {
+    if (this.content.jolie) {
       throw ERR_JPM_EXISTS
     }
 
-    this.content.jpm = { jolieDependencies: {}, mavenDependencies: {}, mavenIndirectDependencies: {} }
+    this.content.jolie = { dependencies: {}, maven: { dependencies: {}, indirectDependencies: {} } }
     this.#writeToFile()
   }
 
@@ -83,7 +83,7 @@ export default class PackageJSON {
     for (const pkg of pkgs) {
       jpmDep[pkg.packageName] = pkg.version
     }
-    this.content.jpm.jolieDependencies = { ...this.content.jpm.jolieDependencies, ...jpmDep }
+    this.content.jolie!.dependencies = { ...this.content.jolie!.dependencies, ...jpmDep }
 
     this.#writeToFile()
   }
@@ -101,7 +101,7 @@ export default class PackageJSON {
   addMVNDependencies(root: Project, deps?: Project[]) {
     const mvnDep: { [key: string]: any } = {}
     mvnDep[`${root.groupID}:${root.artifactID}` as string] = root.version
-    this.content.jpm.mavenDependencies = { ...this.content.jpm.mavenDependencies, ...mvnDep }
+    this.content.jolie!.maven!.dependencies = { ...this.content.jolie!.maven!.dependencies, ...mvnDep }
 
     if (deps) {
       this.addIndirectMVNDependencies(deps)
@@ -126,7 +126,7 @@ export default class PackageJSON {
     for (const dep of deps) {
       mvnIndirectDep[`${dep.groupID}:${dep.artifactID}`] = dep.version
     }
-    this.content.jpm.mavenIndirectDependencies = { ...this.content.jpm.mavenIndirectDependencies, ...mvnIndirectDep }
+    this.content.jolie!.maven!.indirectDependencies = { ...this.content.jolie!.maven!.indirectDependencies, ...mvnIndirectDep }
 
     if (writes) {
       this.#writeToFile()
@@ -142,9 +142,9 @@ export default class PackageJSON {
   getJPMDependencies(): Package[] {
     const res = [] as Package[]
 
-    if (this.content.jpm.jolieDependencies) {
-      Object.keys(this.content.jpm.jolieDependencies).forEach((key) => {
-        res.push(new Package(key + '@' + this.content.jpm.jolieDependencies![key]))
+    if (this.content.jolie!.dependencies) {
+      Object.keys(this.content.jolie!.dependencies).forEach((key) => {
+        res.push(new Package(key + '@' + this.content.jolie!.dependencies![key]))
       })
     }
 
@@ -160,15 +160,15 @@ export default class PackageJSON {
   getMVNDependencies(): Project[] {
     const res = [] as Project[]
 
-    if (this.content.jpm.mavenDependencies) {
-      Object.keys(this.content.jpm.mavenDependencies).forEach((key) => {
-        res.push(new Project(key + '@' + this.content.jpm.mavenDependencies![key]))
+    if (this.content.jolie!.maven!.dependencies) {
+      Object.keys(this.content.jolie!.maven!.dependencies).forEach((key) => {
+        res.push(new Project(key + '@' + this.content.jolie!.maven!.dependencies![key]))
       })
     }
 
-    if (this.content.jpm.mavenIndirectDependencies) {
-      Object.keys(this.content.jpm.mavenIndirectDependencies).forEach((key) => {
-        res.push(new Project(key + '@' + this.content.jpm.mavenIndirectDependencies![key]))
+    if (this.content.jolie!.maven!.indirectDependencies) {
+      Object.keys(this.content.jolie!.maven!.indirectDependencies).forEach((key) => {
+        res.push(new Project(key + '@' + this.content.jolie!.maven!.indirectDependencies![key]))
       })
     }
 
@@ -184,14 +184,14 @@ export default class PackageJSON {
    */
   removeDependency(target: string, type: RepoType) {
     if (type === 'mvn') {
-      if (this.content.jpm.mavenDependencies && this.content.jpm.mavenDependencies[target]) {
-        delete this.content.jpm.mavenDependencies[target]
+      if (this.content.jolie!.maven!.dependencies && this.content.jolie!.maven!.dependencies[target]) {
+        delete this.content.jolie!.maven!.dependencies[target]
       }
     }
 
     if (type === 'npm') {
-      if (this.content.jpm.jolieDependencies && this.content.jpm.jolieDependencies[target]) {
-        delete this.content.jpm.jolieDependencies[target]
+      if (this.content.jolie!.dependencies && this.content.jolie!.dependencies[target]) {
+        delete this.content.jolie!.dependencies[target]
       }
     }
 
@@ -207,8 +207,8 @@ export default class PackageJSON {
    */
   clearMVNIndirectDependencies() {
 
-    if (this.content.jpm.mavenIndirectDependencies) {
-      this.content.jpm.mavenIndirectDependencies = {}
+    if (this.content.jolie?.maven?.indirectDependencies) {
+      this.content.jolie!.maven!.indirectDependencies = {}
     }
 
     this.#writeToFile()

@@ -417,24 +417,38 @@ export interface JSONSchemaForNPMPackageJsonWithJolieSPackageManager2 {
   /**
    * Jolie related package dependencies.
    */
-  jpm: {
+  jolie?: {
     /**
      * Dependencies are specified with a simple hash of package name to version range. The version range is a string which has one or more space-separated descriptors. Dependencies can also be identified with a tarball or git URL.
      */
-    jolieDependencies?: {
+    dependencies?: {
       [k: string]: string
     }
     /**
-     * Dependencies are specified with a simple hash of package name to version range. The version range is a string which has one or more space-separated descriptors. Dependencies can also be identified with a tarball or git URL.
+     * Jolie related tools version this project runs on
      */
-    mavenDependencies?: {
+    engines?: {
+      jolie?: string
       [k: string]: string
     }
+    engineStrict?: boolean
     /**
-     * Dependencies are specified with a simple hash of package name to version range. The version range is a string which has one or more space-separated descriptors. Dependencies can also be identified with a tarball or git URL.
+     * Java related dependencies
      */
-    mavenIndirectDependencies?: {
-      [k: string]: string
+    maven?: {
+      /**
+       * Dependencies are specified with a simple hash of package name to version range. The version range is a string which has one or more space-separated descriptors. Dependencies can also be identified with a tarball or git URL.
+       */
+      dependencies?: {
+        [k: string]: string
+      }
+      /**
+       * Dependencies are specified with a simple hash of package name to version range. The version range is a string which has one or more space-separated descriptors. Dependencies can also be identified with a tarball or git URL.
+       */
+      indirectDependencies?: {
+        [k: string]: string
+      }
+      [k: string]: unknown
     }
   }
 }

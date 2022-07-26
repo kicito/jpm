@@ -42,7 +42,7 @@ add jolie-jsoup with latest tag into the project`
    */
   readPackageJSON(): PackageJSON {
     const packageJSON = new PackageJSON()
-    if (!packageJSON.isJPM()) {
+    if (!packageJSON.isJolie()) {
       throw ERR_NOT_JPM_PACKAGE
     }
     return packageJSON
@@ -155,6 +155,8 @@ add jolie-jsoup with latest tag into the project`
     } else {
       throw errorImportTarget(target)
     }
+
+    this.log(`Installed ${target}`)
   }
 
   async run(): Promise<void> {

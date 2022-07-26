@@ -26,7 +26,7 @@ export default class HooksPreInstall extends Command {
       return
     }
 
-    if (process.env['npm_execpath'] && process.env['npm_execpath'].indexOf('jpm') === -1) {
+    if (process.env['npm_execpath'] && process.env['npm_execpath'].indexOf('jolie') === -1) {
 
       throw ERR_NOT_JPM
     }

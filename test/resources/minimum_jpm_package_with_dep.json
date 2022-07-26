@@ -9,9 +9,11 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "jpm": {
-    "jolieDependencies": {},
-    "mavenDependencies": { "org.jsoup:jsoup": "1.15.1" },
-    "mavenIndirectDependencies": {}
+  "jolie": {
+    "dependencies": {},
+    "maven": {
+      "dependencies": { "org.jsoup:jsoup": "1.15.1" },
+      "indirectDependencies": {}
+    }
   }
 }

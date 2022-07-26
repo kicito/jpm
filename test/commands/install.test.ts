@@ -23,7 +23,7 @@ describe('install', () => {
       .replyWithFile(200, join(resourcesPath, 'jolie-jsoup-0.2.2.tgz'))
     )
     .stdout()
-    .command(['install', 'jolie-jsoup@jpmk'])
+    .command(['install', 'jolie-jsoup'])
     .it('runs install jolie-jsoup', (ctx, done) => {
       expect(ctx.stdout).to.contain('Installed')
       expect(existsSync(join(process.cwd(), 'packages', 'jolie-jsoup'))).to.eql(true)

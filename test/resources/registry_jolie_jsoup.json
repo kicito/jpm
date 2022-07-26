@@ -2,7 +2,7 @@
   "_id": "jolie-jsoup",
   "_rev": "3-e6e0fa1442edecda5fdf824ca0a61951",
   "name": "jolie-jsoup",
-  "dist-tags": { "latest": "0.1.0", "jpmk": "0.2.2" },
+  "dist-tags": { "latest": "0.2.2", "jpmk": "0.2.2" },
   "versions": {
     "0.1.0": {
       "name": "jolie-jsoup",
@@ -105,10 +105,12 @@
         "postpublish": "shx rm -rf dist"
       },
       "devDependencies": { "shx": "^0.3.4" },
-      "jpm": {
-        "jolieDependencies": {},
-        "mavenDependencies": {},
-        "mavenIndirectDependencies": {}
+      "jolie": {
+        "dependencies": {},
+        "maven": {
+          "dependencies": { "org.jsoup:jsoup": "1.15.1" },
+          "indirectDependencies": {}
+        }
       },
       "readme": "# jolie-jsoup\n\nA [jsoup](https://jsoup.org/) Java library connector for [Jolie](https://jolie-lang.org).\n\n## Installation\n\n`jpm add @jolie-jsoup`\n\n## Usage\n\nSee the example in <https://github.com/kicito/jolie-jsoup/blob/main/example/example.ol>.",
       "readmeFilename": "README.md",
@@ -156,10 +158,12 @@
         "postpublish": "shx rm -rf dist"
       },
       "devDependencies": { "shx": "^0.3.4" },
-      "jpm": {
-        "jolieDependencies": {},
-        "mavenDependencies": {},
-        "mavenIndirectDependencies": {}
+      "jolie": {
+        "dependencies": {},
+        "maven": {
+          "dependencies": { "org.jsoup:jsoup": "1.15.1" },
+          "indirectDependencies": {}
+        }
       },
       "readme": "# jolie-jsoup\n\nA [jsoup](https://jsoup.org/) Java library connector for [Jolie](https://jolie-lang.org).\n\n## Installation\n\n`jpm add @jolie-jsoup`\n\n## Usage\n\nSee the example in <https://github.com/kicito/jolie-jsoup/blob/main/example/example.ol>.",
       "readmeFilename": "README.md",

@@ -9,9 +9,11 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "jpm": {
-    "jolieDependencies": {},
-    "mavenDependencies": {},
-    "mavenIndirectDependencies": {}
+  "jolie": {
+    "dependencies": {},
+    "maven": {
+      "dependencies": {},
+      "indirectDependencies": {}
+    }
   }
 }
