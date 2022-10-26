@@ -101,7 +101,9 @@ add jolie-jsoup with latest tag into the project`
         this.log(e + ', skip add dependency to pom')
       }
     }
-    deps.forEach(e => this.log(`Installed ${e.toString()}`))
+    if (deps.length > 1) {
+      deps.slice(1).forEach(e => this.log(`Installed ${e.toString()} as ${deps[0]?.toString()} dependency`))
+    }
   }
 
   async installNPMTarget(target: Package): Promise<void> {
