@@ -1,8 +1,8 @@
-import { parsePom, Project } from '.';
+import { parsePom, Project } from '.'
 // import debug from 'debug'
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import xml from 'xml';
-import { errorDepExistsInPOM } from '../errors';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import xml from 'xml'
+import { errorDepExistsInPOM } from '../errors'
 
 // const logger = debug('mvn')
 
@@ -32,10 +32,10 @@ class LocalProject extends Project {
     }
 
     addDependencies(dep: Project) {
-        this.pom!.dependencies = this.pom!.dependencies ? this.pom!.dependencies : { dependency: [] };
+        this.pom!.dependencies = this.pom!.dependencies ? this.pom!.dependencies : { dependency: [] }
         const exists = this.pom!.dependencies.dependency.find(d => d.artifactid === dep.artifactID && d.groupid === dep.groupID)
         if (exists) {
-            throw errorDepExistsInPOM(dep.toString());
+            throw errorDepExistsInPOM(dep.toString())
         }
         this.pom!.dependencies.dependency.push({
             groupid: dep.groupID,
@@ -48,7 +48,7 @@ class LocalProject extends Project {
     }
 
     removeDependencies(dep: Project) {
-        this.pom!.dependencies = this.pom!.dependencies ? this.pom!.dependencies : { dependency: [] };
+        this.pom!.dependencies = this.pom!.dependencies ? this.pom!.dependencies : { dependency: [] }
         this.pom!.dependencies.dependency = this.pom!.dependencies.dependency.filter(d => d.artifactid !== dep.artifactID && d.groupid !== dep.groupID)
         const depsContent = xml(this.#buildDependenciesXMLObject(), true)
         this.pomContent = this.pomContent?.replace(dependenciesRegex, depsContent) as string
@@ -61,7 +61,7 @@ class LocalProject extends Project {
 
     static async load(): Promise<LocalProject> {
         const pomContent = readFileSync('./pom.xml',
-            { encoding: 'utf8', flag: 'r' });
+            { encoding: 'utf8', flag: 'r' })
         const pom = await parsePom({ xmlContent: pomContent })
         const ret = new LocalProject(pom.artifactid, pom.groupid, pom.version)
         ret.pom = pom

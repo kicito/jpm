@@ -5,7 +5,7 @@ import { join } from 'node:path'
 import { createTestDirIfNotExist, deleteTestDirIfNotExist, resourcesPath } from '../helpers/testUtil'
 
 describe('remove', () => {
-  let path: string;
+  let path: string
   after(() => {
     deleteTestDirIfNotExist()
   })

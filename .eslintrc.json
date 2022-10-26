@@ -20,7 +20,8 @@
         "quotes": [
             "error",
             "single"
-        ]
+        ],
+        "semi": ["error"]
     },
     "ignorePatterns": [
         "dist",

@@ -4,16 +4,16 @@
         "typescript"
     ],
     "eslint.format.enable": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
     "eslint.probe": [
         "javascript",
         "javascriptreact",
         "vue"
     ],
-    "editor.formatOnSave": true,
+    // "editor.formatOnSave": true,
     // Runs Prettier, then ESLint
     "editor.codeActionsOnSave": [
-        "source.formatDocument",
+        // "source.formatDocument",
         "source.fixAll.eslint"
     ],
 }
