@@ -1,20 +1,20 @@
-import { expect, test } from '@oclif/test'
-import { cpSync, existsSync } from 'fs'
-import { glob } from 'glob'
-import { describe, after } from 'mocha'
-import { join } from 'path'
-import { createTestDirIfNotExist, deleteTestDirIfNotExist, resourcesPath } from '../helpers/testUtil'
+import { expect, test } from '@oclif/test';
+import { cpSync, existsSync } from 'fs';
+import { glob } from 'glob';
+import { describe, after } from 'mocha';
+import { join } from 'path';
+import { createTestDirIfNotExist, deleteTestDirIfNotExist, resourcesPath } from '../helpers/testUtil';
 describe('install', () => {
 
   after(() => {
-    deleteTestDirIfNotExist()
-  })
+    deleteTestDirIfNotExist();
+  });
 
   test
     .do(() => {
-      const path = createTestDirIfNotExist('install')
-      process.chdir(path)
-      cpSync(join(resourcesPath, 'minimum_jpm_package.json'), join(path, 'package.json'))
+      const path = createTestDirIfNotExist('install');
+      process.chdir(path);
+      cpSync(join(resourcesPath, 'minimum_jpm_package.json'), join(path, 'package.json'));
     })
     .nock('https://registry.npmjs.com', api => api
       .get('/jolie-jsoup')
@@ -25,12 +25,12 @@ describe('install', () => {
     .stdout()
     .command(['install', 'jolie-jsoup'])
     .it('runs install jolie-jsoup', (ctx, done) => {
-      expect(ctx.stdout).to.contain('Installed')
-      expect(existsSync(join(process.cwd(), 'packages', 'jolie-jsoup'))).to.eql(true)
+      expect(ctx.stdout).to.contain('Installed');
+      expect(existsSync(join(process.cwd(), 'packages', 'jolie-jsoup'))).to.eql(true);
       glob(join(process.cwd(), 'lib', '**/*.jar'), (err, matches) => {
-        expect(!!err).to.eql(false)
-        expect(matches.length > 0).to.eql(true)
-        done()
-      })
-    })
-})
+        expect(!!err).to.eql(false);
+        expect(matches.length > 0).to.eql(true);
+        done();
+      });
+    });
+});

@@ -1,9 +1,13 @@
-import { errorImportTarget } from './errors'
-import { guessIfMVNPackage, Project } from './mvn'
-import { guessIfNPMPackage, Package } from './npm'
+import { errorImportTarget } from './errors';
+import { guessIfMVNPackage, Project } from './mvn';
+import { guessIfNPMPackage, Package } from './npm';
+import { existsSync } from 'node:fs';
 
+export type RepoType = 'mvn' | 'npm' | 'local'
 
-export type RepoType = 'mvn' | 'npm'
+const isLocalDir = (target: string): boolean => {
+    return existsSync(target);
+};
 
 /**
  * Guess repository to retrieve the library
@@ -12,21 +16,26 @@ export type RepoType = 'mvn' | 'npm'
  * @return {RepoType}
  */
 export const guessRepo = (target: string): RepoType => {
+    if (isLocalDir(target)){
+        return 'local';
+    }
+
     if (guessIfMVNPackage(target)) {
-        return 'mvn'
+        return 'mvn';
     }
 
     if (guessIfNPMPackage(target)) {
-        return 'npm'
+        return 'npm';
     }
 
-    throw errorImportTarget(target)
-}
+
+    throw errorImportTarget(target);
+};
 
 export const buildProjectFromTarget = (target: string): Project => {
-    return new Project(target)
-}
+    return new Project(target);
+};
 
 export const buildPackageFromTarget = (target: string): Package => {
-    return new Package(target)
-}
+    return new Package(target);
+};

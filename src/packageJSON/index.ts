@@ -1,10 +1,12 @@
-import { readFileSync, writeFileSync } from 'node:fs'
-import { resolve } from 'node:path'
-import type { JSONSchemaForNPMPackageJsonWithJolieSPackageManager } from './types'
-import { ERR_JPM_EXISTS } from '../errors'
-import Project from '../mvn/project'
-import { Package } from '../npm'
-import type { RepoType } from '../lib'
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+import type { JSONSchemaForNPMPackageJsonWithJolieSPackageManager } from './types';
+import { errorFileNotFound, ERR_JPM_EXISTS } from '../errors';
+import Project from '../mvn/project';
+import { Package } from '../npm';
+import type { RepoType } from '../lib';
+import { join } from 'path';
 
 /**
  * A class representing package.json content
@@ -19,7 +21,7 @@ export default class PackageJSON {
    * @type {string}
    * @memberof PackageJSON
    */
-  path: string
+  path: string;
 
   /**
    * Virtual content in the corresponding package.json
@@ -27,20 +29,23 @@ export default class PackageJSON {
    * @type {JSONSchemaForNPMPackageJsonWithJolieSPackageManager}
    * @memberof PackageJSON
    */
-  content: JSONSchemaForNPMPackageJsonWithJolieSPackageManager
+  content: JSONSchemaForNPMPackageJsonWithJolieSPackageManager;
 
   /**
    * Creates an instance of PackageJSON.
    * @param {string} [path='.'] directory where package.json reside, appends "/package.json" if the input is not package.json
    * @memberof PackageJSON
    */
-  constructor(path: string = '.') {
+  constructor(path = '.') {
     this.path = path.endsWith('package.json')
       ? path
-      : resolve(path, 'package.json')
+      : resolve(path, 'package.json');
+    if ( !existsSync(this.path)){
+      throw errorFileNotFound(this.path);
+    }
     this.content = <JSONSchemaForNPMPackageJsonWithJolieSPackageManager>(
       JSON.parse(readFileSync(this.path, 'utf-8'))
-    )
+    );
   }
 
   /**
@@ -50,7 +55,7 @@ export default class PackageJSON {
    * @memberof PackageJSON
    */
   isJolie(): boolean {
-    return !!this.content.jolie
+    return !!this.content.jolie;
   }
 
   /**
@@ -62,14 +67,14 @@ export default class PackageJSON {
    */
   init() {
     if (this.content.jolie) {
-      throw ERR_JPM_EXISTS
+      throw ERR_JPM_EXISTS;
     }
 
     this.content.jolie = {
       dependencies: {},
       maven: { dependencies: {}, indirectDependencies: {} },
-    }
-    this.#writeToFile()
+    };
+    this.#writeToFile();
   }
 
   /**
@@ -80,17 +85,17 @@ export default class PackageJSON {
    * @memberof PackageJSON
    */
   addJPMDependencies(pkgs: Package[]) {
-    const jpmDep: { [key: string]: string } = {}
+    const jpmDep: { [key: string]: string } = {};
 
     for (const pkg of pkgs) {
-      jpmDep[pkg.packageName] = pkg.version
+      jpmDep[pkg.packageName] = pkg.target;
     }
     this.content.jolie!.dependencies = {
       ...this.content.jolie!.dependencies,
       ...jpmDep,
-    }
+    };
 
-    this.#writeToFile()
+    this.#writeToFile();
   }
 
   /**
@@ -104,18 +109,18 @@ export default class PackageJSON {
    * @memberof PackageJSON
    */
   addMVNDependencies(root: Project, deps?: Project[]) {
-    const mvnDep: { [key: string]: any } = {}
-    mvnDep[`${root.groupID}:${root.artifactID}` as string] = root.version
+    const mvnDep: { [key: string]: string } = {};
+    mvnDep[`${root.groupID}:${root.artifactID}` as string] = root.version;
     this.content.jolie!.maven!.dependencies = {
       ...this.content.jolie!.maven!.dependencies,
       ...mvnDep,
-    }
+    };
 
     if (deps) {
-      this.addIndirectMVNDependencies(deps)
+      this.addIndirectMVNDependencies(deps);
     }
 
-    this.#writeToFile()
+    this.#writeToFile();
   }
 
   /**
@@ -128,18 +133,18 @@ export default class PackageJSON {
    * @param {boolean} [writes=false] should writes to files
    * @memberof PackageJSON
    */
-  addIndirectMVNDependencies(deps: Project[], writes: boolean = false) {
-    const mvnIndirectDep: { [key: string]: any } = {}
+  addIndirectMVNDependencies(deps: Project[], writes = false) {
+    const mvnIndirectDep: { [key: string]: string } = {};
     for (const dep of deps) {
-      mvnIndirectDep[`${dep.groupID}:${dep.artifactID}`] = dep.version
+      mvnIndirectDep[`${dep.groupID}:${dep.artifactID}`] = dep.version;
     }
     this.content.jolie!.maven!.indirectDependencies = {
       ...this.content.jolie!.maven!.indirectDependencies,
       ...mvnIndirectDep,
-    }
+    };
 
     if (writes) {
-      this.#writeToFile()
+      this.#writeToFile();
     }
   }
 
@@ -150,17 +155,17 @@ export default class PackageJSON {
    * @memberof PackageJSON
    */
   getJPMDependencies(): Package[] {
-    const res = [] as Package[]
+    const res = [] as Package[];
 
     if (this.content.jolie!.dependencies) {
       Object.keys(this.content.jolie!.dependencies).forEach((key) => {
         res.push(
           new Package(key + '@' + this.content.jolie!.dependencies![key])
-        )
-      })
+        );
+      });
     }
 
-    return res
+    return res;
   }
 
   /**
@@ -170,14 +175,14 @@ export default class PackageJSON {
    * @memberof PackageJSON
    */
   getMVNDependencies(): Project[] {
-    const res = [] as Project[]
+    const res = [] as Project[];
 
     if (this.content.jolie!.maven!.dependencies) {
       Object.keys(this.content.jolie!.maven!.dependencies).forEach((key) => {
         res.push(
           new Project(key + '@' + this.content.jolie!.maven!.dependencies![key])
-        )
-      })
+        );
+      });
     }
 
     if (this.content.jolie!.maven!.indirectDependencies) {
@@ -187,12 +192,12 @@ export default class PackageJSON {
             new Project(
               key + '@' + this.content.jolie!.maven!.indirectDependencies![key]
             )
-          )
+          );
         }
-      )
+      );
     }
 
-    return res
+    return res;
   }
 
   /**
@@ -208,7 +213,7 @@ export default class PackageJSON {
         this.content.jolie!.maven!.dependencies &&
         this.content.jolie!.maven!.dependencies[target]
       ) {
-        delete this.content.jolie!.maven!.dependencies[target]
+        delete this.content.jolie!.maven!.dependencies[target];
       }
     }
 
@@ -217,11 +222,11 @@ export default class PackageJSON {
         this.content.jolie!.dependencies &&
         this.content.jolie!.dependencies[target]
       ) {
-        delete this.content.jolie!.dependencies[target]
+        delete this.content.jolie!.dependencies[target];
       }
     }
 
-    this.#writeToFile()
+    this.#writeToFile();
   }
 
   /**
@@ -232,10 +237,10 @@ export default class PackageJSON {
    */
   clearMVNIndirectDependencies() {
     if (this.content.jolie?.maven?.indirectDependencies) {
-      this.content.jolie!.maven!.indirectDependencies = {}
+      this.content.jolie!.maven!.indirectDependencies = {};
     }
 
-    this.#writeToFile()
+    this.#writeToFile();
   }
 
   /**
@@ -245,7 +250,15 @@ export default class PackageJSON {
    * @memberof PackageJSON
    */
   #writeToFile() {
-    const data = JSON.stringify(this.content, null, 2)
-    writeFileSync(this.path, data)
+    const data = JSON.stringify(this.content, null, 2);
+    writeFileSync(this.path, data);
+  }
+
+  async resolveMVNDependencies(){
+    const mvnDeps = this.getMVNDependencies();
+    await Project.downloadDistJarAndDependencies(
+      join(process.cwd(), 'lib'),
+      mvnDeps
+    );
   }
 }

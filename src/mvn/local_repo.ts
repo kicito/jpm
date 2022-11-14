@@ -1,9 +1,9 @@
 
-import { exec } from 'shelljs'
-import type Project from './project'
-import { join } from 'node:path'
-import { readFileSync, accessSync, constants, copyFileSync } from 'node:fs'
-import { errorProjectNotFound } from '../errors'
+import { exec } from 'shelljs';
+import type Project from './project';
+import { join } from 'node:path';
+import { readFileSync, accessSync, constants, copyFileSync } from 'node:fs';
+import { errorProjectNotFound } from '../errors';
 
 /**
  * Defined class to manage maven dependency stored in local machine
@@ -11,9 +11,9 @@ import { errorProjectNotFound } from '../errors'
  * @class MVNLocalRepo
  */
 class MVNLocalRepo {
-  path: string
+  path: string;
   constructor() {
-    this.path = exec('mvn -q help:evaluate -Dexpression=settings.localRepository -DforceStdout', { silent: true }).stdout
+    this.path = exec('mvn -q help:evaluate -Dexpression=settings.localRepository -DforceStdout', { silent: true }).stdout;
   }
 
   /**
@@ -24,7 +24,7 @@ class MVNLocalRepo {
    * @memberof MVNLocalRepo
    */
   #buildProjectPath(project: Project): string {
-    return join(this.path, ...project.groupID.split('.'), project.artifactID, project.version)
+    return join(this.path, ...project.groupID.split('.'), project.artifactID, project.version);
   }
 
   /**
@@ -36,10 +36,10 @@ class MVNLocalRepo {
    */
   isProjectExists(project: Project): boolean {
     try {
-      accessSync(join(this.#buildProjectPath(project), project.getPOMName()), constants.R_OK)
-      return true
+      accessSync(join(this.#buildProjectPath(project), project.getPOMName()), constants.R_OK);
+      return true;
     } catch (e) {
-      return false
+      return false;
     }
   }
 
@@ -52,9 +52,9 @@ class MVNLocalRepo {
    */
   getPOM(project: Project): string {
     if (this.isProjectExists(project)) {
-      return readFileSync(join(this.#buildProjectPath(project), project.getPOMName()), 'utf-8')
+      return readFileSync(join(this.#buildProjectPath(project), project.getPOMName()), 'utf-8');
     } else {
-      throw errorProjectNotFound(project.toString())
+      throw errorProjectNotFound(project.toString());
     }
   }
 
@@ -69,13 +69,13 @@ class MVNLocalRepo {
    */
   downloadJAR(project: Project, destination: string) {
     if (this.isProjectExists(project)) {
-      return copyFileSync(join(this.#buildProjectPath(project), project.getDistJAR()), destination)
+      return copyFileSync(join(this.#buildProjectPath(project), project.getDistJAR()), destination);
     } else {
-      throw errorProjectNotFound(project.toString())
+      throw errorProjectNotFound(project.toString());
     }
   }
 }
 
-const localRepo = new MVNLocalRepo()
+const localRepo = new MVNLocalRepo();
 
-export default localRepo
+export default localRepo;

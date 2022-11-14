@@ -1,15 +1,16 @@
-import fetch from 'node-fetch'
-import { fetchParent, MavenSearchResult, mergeProperties, parsePom, PomParsingResult, mergeDependenciesManagement, resolveVersion, filterDependencies } from '.'
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import fetch from 'node-fetch';
+import { fetchParent, MavenSearchResult, mergeProperties, parsePom, PomParsingResult, mergeDependenciesManagement, resolveVersion, filterDependencies } from '.';
 import {
   errorProjectNotFound,
   ERR_MVN_CONNECTION
-} from '../errors'
-import localRepo from './local_repo'
-import debug from 'debug'
-import { download } from '../downloader'
-import { join } from 'node:path'
-import { mkdirIfNotExist } from '../fs'
-const logger = debug('mvn')
+} from '../errors';
+import localRepo from './local_repo';
+import debug from 'debug';
+import { download } from '../downloader';
+import { join } from 'node:path';
+import { mkdirIfNotExist } from '../fs';
+const logger = debug('mvn');
 /**
  * Project represent a mvn Project object
  *
@@ -22,7 +23,7 @@ class Project {
    * @type {string}
    * @memberof Project
    */
-  public artifactID: string
+  public artifactID: string;
 
   /**
    * group ID
@@ -30,7 +31,7 @@ class Project {
    * @type {string}
    * @memberof Project
    */
-  public groupID: string
+  public groupID: string;
 
   /**
    * version
@@ -38,7 +39,7 @@ class Project {
    * @type {string}
    * @memberof Project
    */
-  public version: string
+  public version: string;
 
   /**
    * pom
@@ -46,7 +47,7 @@ class Project {
    * @type {PomParsingResult.Project}
    * @memberof Project
    */
-  public pom?: PomParsingResult.Project
+  public pom?: PomParsingResult.Project;
 
   /**
    * Creates an instance of Project from project root.
@@ -86,31 +87,31 @@ class Project {
 
     // constructor(target: string) case
     if (args.length === 1) {
-      const target = args[0]!
-      let groupIDAndProjectID: string
+      const target = args[0]!;
+      let groupIDAndProjectID: string;
       if (target.includes('@')) {
-        const resSplitAt = target.split('@', 2)
-        groupIDAndProjectID = resSplitAt[0]!
-        this.version = resSplitAt[1]!
+        const resSplitAt = target.split('@', 2);
+        groupIDAndProjectID = resSplitAt[0]!;
+        this.version = resSplitAt[1]!;
       } else {
-        groupIDAndProjectID = target
-        this.version = 'latest'
+        groupIDAndProjectID = target;
+        this.version = 'latest';
       }
 
-      const resSplitColon = groupIDAndProjectID.split(':', 2)
-      this.groupID = resSplitColon[0]!
-      this.artifactID = resSplitColon[1]!
-      return
+      const resSplitColon = groupIDAndProjectID.split(':', 2);
+      this.groupID = resSplitColon[0]!;
+      this.artifactID = resSplitColon[1]!;
+      return;
     }
 
     // constructor(groupID: string, projectID: string, version: string) case
     if (args.length === 3) {
-      this.groupID = args[0]!
-      this.artifactID = args[1]!
-      this.version = args[2]!
-      return
+      this.groupID = args[0]!;
+      this.artifactID = args[1]!;
+      this.version = args[2]!;
+      return;
     }
-    throw Error('illegal number of args')
+    throw Error('illegal number of args');
   }
 
   /**
@@ -121,7 +122,7 @@ class Project {
    * @memberof Project
    */
   #getRepoPath = (): string =>
-    `${this.groupID.replace(/\./g, '/')}/${this.artifactID}/${this.version}`
+    `${this.groupID.replace(/\./g, '/')}/${this.artifactID}/${this.version}`;
 
   /**
    * Construct pom on maven repository path from the corresponding Project.
@@ -130,7 +131,7 @@ class Project {
    *
    * @memberof Project
    */
-  getPOMName = (): string => `${this.artifactID}-${this.version}.pom`
+  getPOMName = (): string => `${this.artifactID}-${this.version}.pom`;
 
   /**
    * Generate endpoint to retrieve pom file of the project
@@ -140,7 +141,7 @@ class Project {
    * @return {string} url to retrieve pom prefix/group/artifact/version/artifactID-version.pom
    */
   #getPOMURL = (prefix = 'https://repo1.maven.org/maven2'): string =>
-    `${prefix}/${this.#getRepoPath()}/${this.getPOMName()}`
+    `${prefix}/${this.#getRepoPath()}/${this.getPOMName()}`;
 
   /**
    * generate endpoint to retrieve jar file of the project
@@ -150,7 +151,7 @@ class Project {
    * @return {string} url to retrieve pom prefix/group/artifact/version/artifactID-version.jar
    */
   getJARURL = (prefix = 'https://repo1.maven.org/maven2'): string =>
-    `${prefix}/${this.#getRepoPath()}/${this.getDistJAR()}`
+    `${prefix}/${this.#getRepoPath()}/${this.getDistJAR()}`;
 
   /**
    * Search latest version of an project on maven repository
@@ -162,30 +163,30 @@ class Project {
    * @memberof Project
    */
   async getLatestProjectVersion(): Promise<string> {
-    const endpoint = `http://search.maven.org/solrsearch/select?q=g:%22${this.groupID}%22+AND+a:%22${this.artifactID}%22`
+    const endpoint = `http://search.maven.org/solrsearch/select?q=g:%22${this.groupID}%22+AND+a:%22${this.artifactID}%22`;
 
     logger(
       'searching for groupId: %s, artifactID: %s, with url: %s',
       this.groupID,
       this.artifactID,
       endpoint
-    )
+    );
 
-    const response = await fetch(endpoint)
+    const response = await fetch(endpoint);
 
-    if (!response.ok) throw ERR_MVN_CONNECTION
+    if (!response.ok) throw ERR_MVN_CONNECTION;
 
     const {
       response: { docs }
-    } = await response.json() as MavenSearchResult.Root
+    } = await response.json() as MavenSearchResult.Root;
 
     if (docs.length === 0) {
-      logger('url: %s returns empty array for .docs field', endpoint)
+      logger('url: %s returns empty array for .docs field', endpoint);
 
-      throw errorProjectNotFound(endpoint)
+      throw errorProjectNotFound(endpoint);
     }
 
-    return docs[0]!.latestVersion
+    return docs[0]!.latestVersion;
   }
 
   /**
@@ -197,24 +198,24 @@ class Project {
    */
   async getPOM(): Promise<PomParsingResult.Project> {
     if (this.pom) {
-      return this.pom
+      return this.pom;
     } else {
       if (this.version === 'latest') {
-        this.version = await this.getLatestProjectVersion()
+        this.version = await this.getLatestProjectVersion();
       }
 
       if (localRepo.isProjectExists(this)) {
         try {
-          this.pom = await parsePom({ xmlContent: localRepo.getPOM(this) })
-          return this.pom
+          this.pom = await parsePom({ xmlContent: localRepo.getPOM(this) });
+          return this.pom;
         } catch (e) {
-          logger('unable to parse pom in local repository', e)
+          logger('unable to parse pom in local repository', e);
         }
       }
 
-      const pomContent = await (await fetch(this.#getPOMURL())).text()
-      this.pom = await parsePom({ xmlContent: pomContent })
-      return this.pom
+      const pomContent = await (await fetch(this.#getPOMURL())).text();
+      this.pom = await parsePom({ xmlContent: pomContent });
+      return this.pom;
     }
   }
 
@@ -228,27 +229,27 @@ class Project {
   resolveProperties(properties: PomParsingResult.Properties, dependencymanagement: PomParsingResult.Dependency[]): void {
     if (this.pom!.dependencies) {
       for (const d of this.pom!.dependencies!.dependency) {
-        let version = d.version
+        let version = d.version;
         if (!version) {
-          version = dependencymanagement.find(e => e.groupid === d.groupid && e.artifactid === d.artifactid)?.version || ''
+          version = dependencymanagement.find(e => e.groupid === d.groupid && e.artifactid === d.artifactid)?.version || '';
         }
         if (version === '') {
-          logger(`Unable to resolve package version of ${d.groupid}:${d.artifactid}, from the dependencies`)
+          logger(`Unable to resolve package version of ${d.groupid}:${d.artifactid}, from the dependencies`);
         }
-        d.version = resolveVersion(version!, this.pom!, properties)
+        d.version = resolveVersion(version!, this.pom!, properties);
       }
     }
 
     if (this.pom!.dependencymanagement) {
       for (const d of this.pom!.dependencymanagement!.dependencies.dependency) {
-        let version = d.version
+        let version = d.version;
         if (!version) {
-          version = dependencymanagement.find(e => e.groupid === d.groupid && e.artifactid === d.artifactid)?.version || ''
+          version = dependencymanagement.find(e => e.groupid === d.groupid && e.artifactid === d.artifactid)?.version || '';
         }
         if (version === '') {
-          logger(`Unable to resolve package version of ${d.groupid}:${d.artifactid}, from the dependeciesmanagement`)
+          logger(`Unable to resolve package version of ${d.groupid}:${d.artifactid}, from the dependeciesmanagement`);
         }
-        d.version = resolveVersion(version!, this.pom!, properties)
+        d.version = resolveVersion(version!, this.pom!, properties);
       }
     }
   }
@@ -264,7 +265,7 @@ class Project {
    */
   filterDependencies(): void {
     if (this.pom!.dependencies) {
-      this.pom!.dependencies.dependency = filterDependencies(this.pom!.dependencies.dependency)
+      this.pom!.dependencies.dependency = filterDependencies(this.pom!.dependencies.dependency);
     }
   }
 
@@ -278,30 +279,30 @@ class Project {
    * @memberof Project
    */
   async getProjectDependencies(): Promise<Project[]> {
-    const res: Project[] = [this]
-    const pom = await this.getPOM()
-    let properties: PomParsingResult.Properties = pom.properties ? pom.properties : {}
-    let dependencymanagement: PomParsingResult.Dependency[] = pom.dependencymanagement ? pom.dependencymanagement.dependencies.dependency : [] as PomParsingResult.Dependency[]
+    const res: Project[] = [this];
+    const pom = await this.getPOM();
+    let properties: PomParsingResult.Properties = pom.properties ? pom.properties : {};
+    let dependencymanagement: PomParsingResult.Dependency[] = pom.dependencymanagement ? pom.dependencymanagement.dependencies.dependency : [] as PomParsingResult.Dependency[];
     if (pom.parent) {
-      const parents = await fetchParent(pom)
-      properties = mergeProperties(this, parents)
-      dependencymanagement = mergeDependenciesManagement(this, parents)
+      const parents = await fetchParent(pom);
+      properties = mergeProperties(this, parents);
+      dependencymanagement = mergeDependenciesManagement(this, parents);
       for (const p of parents) {
-        p.resolveProperties(properties, dependencymanagement)
+        p.resolveProperties(properties, dependencymanagement);
       }
     }
 
     if (pom.dependencies) {
-      this.filterDependencies()
-      this.resolveProperties(properties, dependencymanagement)
+      this.filterDependencies();
+      this.resolveProperties(properties, dependencymanagement);
 
       for (const dep of pom.dependencies?.dependency) {
         res.push(new Project(
           dep.groupid, dep.artifactid, dep.version!
-        ))
+        ));
       }
     }
-    return res
+    return res;
   }
 
   /**
@@ -314,13 +315,13 @@ class Project {
   async #downloadDistJar(dest: string): Promise<void> {
     if (localRepo.isProjectExists(this)) {
       try {
-        localRepo.downloadJAR(this, join(dest, this.getDistJAR()))
-        return
+        localRepo.downloadJAR(this, join(dest, this.getDistJAR()));
+        return;
       } catch (e) {
-        logger('unable to download jar from local repository', e)
+        logger('unable to download jar from local repository', e);
       }
     }
-    await download(this.getJARURL(), join(dest, this.getDistJAR()))
+    await download(this.getJARURL(), join(dest, this.getDistJAR()));
   }
 
   /**
@@ -331,11 +332,11 @@ class Project {
    * @memberof Project
    */
   getDistJAR(): string {
-    return `${this.artifactID}-${this.version}.jar`
+    return `${this.artifactID}-${this.version}.jar`;
   }
 
   toString(): string {
-    return `${this.groupID}:${this.artifactID}@${this.version}`
+    return `${this.groupID}:${this.artifactID}@${this.version}`;
   }
 
   /**
@@ -351,12 +352,12 @@ class Project {
    */
   static async downloadDistJarAndDependencies(dest: string, dependencies: Project[]): Promise<void> {
     if (dependencies.length > 0) {
-      mkdirIfNotExist(dest)
+      mkdirIfNotExist(dest);
     }
     for (const dep of dependencies) {
-      await dep.#downloadDistJar(dest)
+      await dep.#downloadDistJar(dest);
     }
   }
 }
 
-export default Project
+export default Project;

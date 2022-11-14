@@ -1,24 +1,25 @@
-import { Command, Flags } from '@oclif/core'
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { Command, Flags } from '@oclif/core';
 
-import { Project } from '../mvn'
-import { Package } from '../npm'
-import { errorImportTarget, ERR_NOT_JPM_PACKAGE } from '../errors'
-import { join } from 'path'
-import PackageJSON from '../packageJSON'
-import LocalProject from '../mvn/local_project'
+import { Project } from '../mvn';
+import { Package } from '../npm';
+import { errorImportTarget, ERR_NOT_JPM_PACKAGE } from '../errors';
+import { join } from 'path';
+import PackageJSON from '../packageJSON';
+import LocalProject from '../mvn/local_project';
 import {
   RepoType,
   guessRepo,
   buildProjectFromTarget,
   buildPackageFromTarget,
-} from '../lib'
+} from '../lib';
 
 type InstallTargetOptions = {
   repo: RepoType;
 };
 
 export default class Install extends Command {
-  static override description = 'Add Jolie related dependency to the project'
+  static override description = 'Add Jolie related dependency to the project';
 
   static override examples = [
     `$ jpm install
@@ -29,7 +30,7 @@ add @jolie/websocket into the project`,
 add maven's jsoup into the project`,
     `$ jpm install jolie-jsoup@latest
 add jolie-jsoup with latest tag into the project`,
-  ]
+  ];
 
   static override flags = {
     repo: Flags.enum<RepoType>({
@@ -37,9 +38,9 @@ add jolie-jsoup with latest tag into the project`,
       description: 'specify the lookup repository',
       options: ['mvn', 'npm'],
     }),
-  }
+  };
 
-  static override args = [{ name: 'target', description: 'Target package' }]
+  static override args = [{ name: 'target', description: 'Target package' }];
 
   /**
    * Read content from package.json
@@ -49,11 +50,11 @@ add jolie-jsoup with latest tag into the project`,
    * @throws {ERR_NOT_JPM_PACKAGE} When target package.json is not jpm compatible.
    */
   readPackageJSON(): PackageJSON {
-    const packageJSON = new PackageJSON()
+    const packageJSON = new PackageJSON();
     if (!packageJSON.isJolie()) {
-      throw ERR_NOT_JPM_PACKAGE
+      throw ERR_NOT_JPM_PACKAGE;
     }
-    return packageJSON
+    return packageJSON;
   }
 
   /**
@@ -63,62 +64,58 @@ add jolie-jsoup with latest tag into the project`,
    * @memberof Install
    */
   async install(): Promise<void> {
-    const packageJSON = this.readPackageJSON()
-    const mvnDeps = packageJSON.getMVNDependencies()
-    await Project.downloadDistJarAndDependencies(
-      join(process.cwd(), 'lib'),
-      mvnDeps
-    )
+    const packageJSON = this.readPackageJSON();
+    await packageJSON.resolveMVNDependencies();
 
-    const deps = packageJSON.getJPMDependencies()
+    const deps = packageJSON.getJPMDependencies();
     for (const dep of deps) {
-      const ds = await dep.getDependencies()
+      const ds = await dep.getDependencies();
 
-      const jpmDeps = [] as Package[]
-      const mvnDeps = [] as Project[]
+      const jpmDeps = [] as Package[];
+      const mvnDeps = [] as Project[];
 
       for (const dep of ds) {
         if (dep instanceof Project) {
-          mvnDeps.push(dep)
+          mvnDeps.push(dep);
         } else if (dep instanceof Package) {
-          jpmDeps.push(dep)
+          jpmDeps.push(dep);
         }
       }
       await Package.downloadPackageAndDependencies(
         join(process.cwd()),
         dep,
         jpmDeps
-      )
+      );
       await Project.downloadDistJarAndDependencies(
         join(process.cwd(), 'lib'),
         mvnDeps
-      )
+      );
       if (mvnDeps.length > 0) {
-        packageJSON.addIndirectMVNDependencies(mvnDeps, true)
+        packageJSON.addIndirectMVNDependencies(mvnDeps, true);
       }
     }
   }
 
   async installMVNTarget(target: Project): Promise<void> {
-    const packageJSON = this.readPackageJSON()
+    const packageJSON = this.readPackageJSON();
 
     if (target.version === 'latest') {
-      target.version = await target.getLatestProjectVersion()
+      target.version = await target.getLatestProjectVersion();
     }
-    const deps = await target.getProjectDependencies()
+    const deps = await target.getProjectDependencies();
     await Project.downloadDistJarAndDependencies(
       join(process.cwd(), 'lib'),
       deps
-    )
+    );
 
-    packageJSON.addMVNDependencies(deps[0]!, deps.slice(1))
+    packageJSON.addMVNDependencies(deps[0]!, deps.slice(1));
     if (LocalProject.isMavenProject()) {
-      const localPom = await LocalProject.load()
-      this.log('Adding', target.toString(), 'to pom.xml')
+      const localPom = await LocalProject.load();
+      this.log('Adding', target.toString(), 'to pom.xml');
       try {
-        localPom.addDependencies(target)
+        localPom.addDependencies(target);
       } catch (e) {
-        this.log(e + ', skip add dependency to pom')
+        this.log(e + ', skip add dependency to pom');
       }
     }
     if (deps.length > 1) {
@@ -128,46 +125,46 @@ add jolie-jsoup with latest tag into the project`,
           this.log(
             `Installed ${e.toString()} as ${deps[0]?.toString()} dependency`
           )
-        )
+        );
     }
   }
 
   async installNPMTarget(target: Package): Promise<void> {
-    const packageJSON = this.readPackageJSON()
+    const packageJSON = this.readPackageJSON();
 
-    const deps = await target.getDependencies()
-    const jpmDeps = [] as Package[]
-    const mvnDeps = [] as Project[]
+    const deps = await target.getDependencies();
+    const jpmDeps = [] as Package[];
+    const mvnDeps = [] as Project[];
 
     for (const dep of deps) {
       if (dep instanceof Project) {
-        mvnDeps.push(dep)
+        mvnDeps.push(dep);
       } else if (dep instanceof Package) {
-        jpmDeps.push(dep)
+        jpmDeps.push(dep);
       }
     }
     await Package.downloadPackageAndDependencies(
       join(process.cwd()),
       target,
       jpmDeps
-    )
+    );
     await Project.downloadDistJarAndDependencies(
       join(process.cwd(), 'lib'),
       mvnDeps
-    )
+    );
 
-    packageJSON.addJPMDependencies([target])
+    packageJSON.addJPMDependencies([target]);
     if (jpmDeps.length > 0) {
       jpmDeps.forEach((e) =>
         this.log(`Installed ${e.toString()} as ${target.toString()} dependency`)
-      )
+      );
     }
 
     if (mvnDeps.length > 0) {
-      packageJSON.addIndirectMVNDependencies(mvnDeps, true)
+      packageJSON.addIndirectMVNDependencies(mvnDeps, true);
       mvnDeps.forEach((e) =>
         this.log(`Installed ${e.toString()} as ${target.toString()} dependency`)
-      )
+      );
     }
   }
 
@@ -183,33 +180,33 @@ add jolie-jsoup with latest tag into the project`,
     target: string,
     opts?: InstallTargetOptions
   ): Promise<void> {
-    this.log(`Installing ${target}`)
+    this.log(`Installing ${target}`);
 
-    const repo = opts ? opts.repo : guessRepo(target)
+    const repo = opts ? opts.repo : guessRepo(target);
 
     if (repo === 'mvn') {
-      const mvnProject = buildProjectFromTarget(target)
-      await this.installMVNTarget(mvnProject)
-    } else if (repo === 'npm') {
-      const npmPackage = buildPackageFromTarget(target)
-      await this.installNPMTarget(npmPackage)
+      const mvnProject = buildProjectFromTarget(target);
+      await this.installMVNTarget(mvnProject);
+    } else if (repo === 'npm' || repo === 'local') {
+      const npmPackage = buildPackageFromTarget(target);
+      await this.installNPMTarget(npmPackage);
     } else {
-      throw errorImportTarget(target)
+      throw errorImportTarget(target);
     }
 
-    this.log(`Installed ${target}`)
+    this.log(`Installed ${target}`);
   }
 
   async run(): Promise<void> {
-    const { args } = await this.parse(Install)
+    const { args } = await this.parse(Install);
 
     if (args['target']) {
       await this.installWithTarget(
         args['target'],
         args['repo'] ? { repo: args['repo'] } : undefined
-      )
+      );
     } else {
-      await this.install()
+      await this.install();
     }
   }
 }

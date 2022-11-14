@@ -1,11 +1,13 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/no-namespace */
 /* eslint-disable no-use-before-define */
-import '../@types'
-import pomParser from 'pom-parser'
-import Project from './project'
-import debug from 'debug'
-export { default as Project } from './project'
+import '../@types';
+import pomParser from 'pom-parser';
+import Project from './project';
+import debug from 'debug';
+export { default as Project } from './project';
 
-const logger = debug('mvn')
+const logger = debug('mvn');
 // result from artifact search
 export declare namespace MavenSearchResult {
 
@@ -48,7 +50,7 @@ export declare namespace MavenSearchResult {
   }
 
   export interface Spellcheck {
-    suggestions: any[];
+    suggestions: unknown[];
   }
 
   export interface Root {
@@ -198,11 +200,11 @@ export declare namespace PomParsingResult {
  */
 export const guessIfMVNPackage = (target: string): boolean => {
   if (target.includes(':')) {
-    return true
+    return true;
   }
 
-  return false
-}
+  return false;
+};
 
 type ParsePomOpt = {
   xmlContent: string
@@ -221,37 +223,37 @@ export const parsePom = (opts: Partial<ParsePomOpt>): Promise<PomParsingResult.P
     (resolve, reject) => {
       pomParser.parse(opts, async function (err: string, pomResponse: { pomObject: PomParsingResult.Root }) {
         if (err) {
-          reject(err)
-          return
+          reject(err);
+          return;
         }
         if (pomResponse.pomObject.project.dependencymanagement && pomResponse.pomObject.project.dependencymanagement.dependencies) {
           if (typeof pomResponse.pomObject.project.dependencymanagement.dependencies === 'string') {
-            pomResponse.pomObject.project.dependencymanagement.dependencies = { dependency: [] }
+            pomResponse.pomObject.project.dependencymanagement.dependencies = { dependency: [] };
           } else if (!Array.isArray(pomResponse.pomObject.project.dependencymanagement.dependencies.dependency)) {
-            pomResponse.pomObject.project.dependencymanagement.dependencies.dependency = [pomResponse.pomObject.project.dependencymanagement.dependencies.dependency]
+            pomResponse.pomObject.project.dependencymanagement.dependencies.dependency = [pomResponse.pomObject.project.dependencymanagement.dependencies.dependency];
           }
         }
         if (pomResponse.pomObject.project.dependencies) {
           if (typeof pomResponse.pomObject.project.dependencies === 'string') {
-            pomResponse.pomObject.project.dependencies = { dependency: [] }
+            pomResponse.pomObject.project.dependencies = { dependency: [] };
           } else if (!Array.isArray(pomResponse.pomObject.project.dependencies.dependency)) {
-            pomResponse.pomObject.project.dependencies.dependency = [pomResponse.pomObject.project.dependencies.dependency]
+            pomResponse.pomObject.project.dependencies.dependency = [pomResponse.pomObject.project.dependencies.dependency];
           }
         }
 
         if (!pomResponse.pomObject.project.groupid && pomResponse.pomObject.project.parent?.groupid) {
-          pomResponse.pomObject.project.groupid = pomResponse.pomObject.project.parent?.groupid
+          pomResponse.pomObject.project.groupid = pomResponse.pomObject.project.parent?.groupid;
         }
 
         if (!pomResponse.pomObject.project.version && pomResponse.pomObject.project.parent?.version) {
-          pomResponse.pomObject.project.version = pomResponse.pomObject.project.parent?.version
+          pomResponse.pomObject.project.version = pomResponse.pomObject.project.parent?.version;
         }
 
-        resolve(pomResponse.pomObject.project)
-      })
+        resolve(pomResponse.pomObject.project);
+      });
     }
-  )
-}
+  );
+};
 
 /**
  * Filters non-necessary dependencies to run jolie's java service.
@@ -262,9 +264,9 @@ export const parsePom = (opts: Partial<ParsePomOpt>): Promise<PomParsingResult.P
  */
 export const filterDependencies = (deps: PomParsingResult.Dependency[]): PomParsingResult.Dependency[] => {
   return deps.filter((e) => {
-    return e.groupid !== 'org.jolie-lang' && e.scope === 'runtime'
-  })
-}
+    return e.groupid !== 'org.jolie-lang' && e.scope === 'runtime';
+  });
+};
 
 /**
  * Merges properties declared on apply's to main, main will have highest precedence.
@@ -276,9 +278,9 @@ export const filterDependencies = (deps: PomParsingResult.Dependency[]): PomPars
  */
 export const mergeProperties = (main: Project, apply: Project[]): PomParsingResult.Properties => {
   return [main, ...apply].reduce((prev, curr) => {
-    return { ...(curr.pom)!.properties, ...prev }
-  }, {})
-}
+    return { ...(curr.pom)!.properties, ...prev };
+  }, {});
+};
 
 /**
  * Resolves version of the distribution from properties, version defined in passing pom object will have highest precedence
@@ -292,20 +294,20 @@ export const mergeProperties = (main: Project, apply: Project[]): PomParsingResu
  */
 export const resolveVersion = (versionStr: string, pom: PomParsingResult.Project, additionalProperties?: PomParsingResult.Properties): string => {
   if (versionStr.startsWith('${')) {
-    const propTarget = versionStr.substring(2, versionStr.length - 1)
+    const propTarget = versionStr.substring(2, versionStr.length - 1);
     if (propTarget === 'project.version') {
-      return pom.version
+      return pom.version;
     } else if (pom.properties && pom.properties[propTarget]) {
-      return pom.properties[propTarget]!
+      return pom.properties[propTarget]!;
     } else if (additionalProperties && additionalProperties[propTarget]) {
-      return additionalProperties[propTarget]!
+      return additionalProperties[propTarget]!;
     } else {
-      logger(`Unable to resolve package ${pom.groupid}:${pom.artifactid}@${versionStr}, use latest`)
-      return 'latest'
+      logger(`Unable to resolve package ${pom.groupid}:${pom.artifactid}@${versionStr}, use latest`);
+      return 'latest';
     }
   }
-  return versionStr
-}
+  return versionStr;
+};
 
 /**
  * Recursively fetches parent Projects defined in rootProject
@@ -315,23 +317,23 @@ export const resolveVersion = (versionStr: string, pom: PomParsingResult.Project
  * @return {*}  {Promise<Project[]>}
  */
 export const fetchParent = async (rootProject: PomParsingResult.Project): Promise<Project[]> => {
-  const res: Project[] = []
+  const res: Project[] = [];
   while (rootProject.parent) {
-    logger(`fetching parent of ${rootProject.groupid}:${rootProject.artifactid}@${rootProject.version}`)
-    logger(`parent before resolve version: ${rootProject.parent.groupid}:${rootProject.parent.artifactid}@${rootProject.parent.version}`)
-    const version = resolveVersion(rootProject.parent.version!, rootProject)
-    logger(`parent: ${rootProject.parent.groupid}:${rootProject.parent.artifactid}@${version}`)
+    logger(`fetching parent of ${rootProject.groupid}:${rootProject.artifactid}@${rootProject.version}`);
+    logger(`parent before resolve version: ${rootProject.parent.groupid}:${rootProject.parent.artifactid}@${rootProject.parent.version}`);
+    const version = resolveVersion(rootProject.parent.version!, rootProject);
+    logger(`parent: ${rootProject.parent.groupid}:${rootProject.parent.artifactid}@${version}`);
 
-    const parentProject = new Project(rootProject.parent.groupid, rootProject.parent.artifactid, version)
-    const parentPOM = await parentProject.getPOM()
+    const parentProject = new Project(rootProject.parent.groupid, rootProject.parent.artifactid, version);
+    const parentPOM = await parentProject.getPOM();
     if (res.filter((e) => e.groupID === parentProject.groupID && e.artifactID === parentProject.artifactID).length > 0) {
-      break
+      break;
     }
-    res.push(parentProject)
-    rootProject = parentPOM
+    res.push(parentProject);
+    rootProject = parentPOM;
   }
-  return res
-}
+  return res;
+};
 /**
  * Merges dependenciesmanagement of root and its parents fields into one
  *
@@ -340,14 +342,14 @@ export const fetchParent = async (rootProject: PomParsingResult.Project): Promis
  * @return {*}  {Array<PomParsingResult.Dependency>}
  */
 export const mergeDependenciesManagement = (root: Project, parents: Project[]): Array<PomParsingResult.Dependency> => {
-  const res: Array<PomParsingResult.Dependency> = [] as Array<PomParsingResult.Dependency>
+  const res: Array<PomParsingResult.Dependency> = [] as Array<PomParsingResult.Dependency>;
   if (root.pom?.dependencymanagement) {
-    res.push(...root.pom?.dependencymanagement.dependencies.dependency)
+    res.push(...root.pom?.dependencymanagement.dependencies.dependency);
   }
   for (const project of parents) {
     if (project.pom?.dependencymanagement) {
-      res.push(...project.pom?.dependencymanagement.dependencies.dependency)
+      res.push(...project.pom?.dependencymanagement.dependencies.dependency);
     }
   }
-  return res
-}
+  return res;
+};

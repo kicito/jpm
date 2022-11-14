@@ -1,6 +1,6 @@
-import { existsSync, mkdirSync } from 'fs'
+import { existsSync, mkdirSync } from 'fs';
 export const mkdirIfNotExist = (path: string) => {
     if (!existsSync(path)) {
-        mkdirSync(path, { recursive: true })
+        mkdirSync(path, { recursive: true });
     }
-}
+};
