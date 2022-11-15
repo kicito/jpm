@@ -81,7 +81,7 @@ add jolie-jsoup with latest tag into the project`,
           jpmDeps.push(dep);
         }
       }
-      await Package.downloadPackageAndDependencies(
+      await Package.installPackageAndDependencies(
         join(process.cwd()),
         dep,
         jpmDeps
@@ -143,7 +143,7 @@ add jolie-jsoup with latest tag into the project`,
         jpmDeps.push(dep);
       }
     }
-    await Package.downloadPackageAndDependencies(
+    await Package.installPackageAndDependencies(
       join(process.cwd()),
       target,
       jpmDeps

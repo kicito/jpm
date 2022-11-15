@@ -224,7 +224,19 @@ class Package {
     }
   }
 
-  static async downloadPackage(dist: string, libDir: string, pkg: Package) {
+  /**
+   * download packages to the `packages` directory. The transfer method is determine by the package type.
+   *  npm: fetch data from npm registry and download/extract tarball to packages directory
+   *  local_folder: create symlink pointing to the directory
+   *  local_tgz: unzip file to packages directory
+   *  remote: download and extract to package directory
+   * 
+   * @param dist directory destination 
+   * @param libDir lib directory
+   * @param pkg package instance
+   * @returns 
+   */
+  static async installPackage(dist: string, libDir: string, pkg: Package) {
     const packageDir = join(dist, 'packages', pkg.packageName);
     console.log('install ', pkg.toString(), 'to', packageDir);
 
@@ -278,7 +290,13 @@ class Package {
     }
   }
 
-  static async downloadPackageAndDependencies(
+  /**
+   * Download list of package and it's depenencies to `dist` package
+   * @param dist directory destination 
+   * @param pkg package to install
+   * @param deps dependencies
+   */
+  static async installPackageAndDependencies(
     dist: string,
     pkg: Package,
     deps: Package[]
@@ -286,11 +304,11 @@ class Package {
     const libDir = join(dist, 'lib');
     mkdirIfNotExist(libDir);
 
-    Package.downloadPackage(dist, libDir, pkg);
+    Package.installPackage(dist, libDir, pkg);
 
     for (const dep of deps) {
       const packageDir = join(dist, 'packages', pkg.packageName);
-      Package.downloadPackage(packageDir, libDir, dep);
+      Package.installPackage(packageDir, libDir, dep);
     }
   }
 
