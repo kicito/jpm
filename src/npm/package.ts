@@ -2,12 +2,12 @@
 import decompress from 'decompress';
 import fetch from 'node-fetch';
 import { tmpdir } from 'node:os';
-import { join, basename, extname } from 'node:path';
+import { join, basename, extname, resolve } from 'node:path';
 import semver from 'semver';
 import { copyJARToDir, download } from '../downloader';
-import { ERR_TARGET_NOT_JPM_PACKAGE } from '../errors';
+import { ERR_TARGET_NOT_JPM_PACKAGE, errorFileNotFound } from '../errors';
 import { mkdirIfNotExist } from '../fs';
-import { existsSync, symlinkSync } from 'node:fs';
+import { existsSync, symlinkSync, rmSync } from 'node:fs';
 import { Project } from '../mvn';
 import PackageJSON from '../packageJSON';
 import type { JSONSchemaForNPMPackageJsonWithJolieSPackageManager } from '../packageJSON/types';
@@ -156,19 +156,22 @@ class Package {
       ] as JSONSchemaForNPMPackageJsonWithJolieSPackageManager;
       if (jpmPackage.jolie) {
         if (jpmPackage.jolie?.maven?.dependencies) {
-          Object.keys(jpmPackage.jolie!.maven!.dependencies as Record<string,unknown>).forEach(
-            (key) => {
-              res.push(
-                new Project(
-                  key + '@' + jpmPackage.jolie!.maven!.dependencies![key]
-                )
-              );
-            }
-          );
+          Object.keys(
+            jpmPackage.jolie!.maven!.dependencies as Record<string, unknown>
+          ).forEach((key) => {
+            res.push(
+              new Project(
+                key + '@' + jpmPackage.jolie!.maven!.dependencies![key]
+              )
+            );
+          });
         }
         if (jpmPackage.jolie?.maven?.indirectDependencies) {
           Object.keys(
-            jpmPackage.jolie.maven.indirectDependencies as Record<string, unknown>
+            jpmPackage.jolie.maven.indirectDependencies as Record<
+              string,
+              unknown
+            >
           ).forEach((key) => {
             res.push(
               new Project(
@@ -178,13 +181,13 @@ class Package {
           });
         }
         if (jpmPackage.jolie.dependencies) {
-          Object.keys(jpmPackage.jolie.dependencies as Record<string, unknown>).forEach(
-            (key) => {
-              res.push(
-                new Package(key + '@' + jpmPackage.jolie!.dependencies![key])
-              );
-            }
-          );
+          Object.keys(
+            jpmPackage.jolie.dependencies as Record<string, unknown>
+          ).forEach((key) => {
+            res.push(
+              new Package(key + '@' + jpmPackage.jolie!.dependencies![key])
+            );
+          });
         }
       } else {
         throw ERR_TARGET_NOT_JPM_PACKAGE;
@@ -230,15 +233,15 @@ class Package {
    *  local_folder: create symlink pointing to the directory
    *  local_tgz: unzip file to packages directory
    *  remote: download and extract to package directory
-   * 
-   * @param dist directory destination 
+   *
+   * @param dist directory destination
    * @param libDir lib directory
    * @param pkg package instance
-   * @returns 
+   * @returns
    */
   static async installPackage(dist: string, libDir: string, pkg: Package) {
     const packageDir = join(dist, 'packages', pkg.packageName);
-    console.log('install ', pkg.toString(), 'to', packageDir);
+    console.log('Install ', pkg.toString(), 'to', packageDir);
 
     switch (pkg.type) {
       case TargetType.NPM: {
@@ -257,8 +260,16 @@ class Package {
         return;
       }
       case TargetType.LOCAL_FOLDER: {
+        const linkTarget = resolve(pkg.target);
+        if (!existsSync(linkTarget)) {
+          throw errorFileNotFound(linkTarget);
+        }
         mkdirIfNotExist(join(dist, 'packages'));
-        symlinkSync(join('..', pkg.target), packageDir);
+        if (existsSync(packageDir)) {
+          rmSync(packageDir);
+          console.log('Overriding', packageDir);
+        }
+        symlinkSync(linkTarget, packageDir);
         return;
       }
       case TargetType.LOCAL_TGZ: {
@@ -275,24 +286,20 @@ class Package {
       case TargetType.REMOTE: {
         mkdirIfNotExist(packageDir);
         mkdirIfNotExist(Package.jpmTmpDir);
-        const tmpDir = join(
-          Package.jpmTmpDir,
-          pkg.target
-        );
+        const tmpDir = join(Package.jpmTmpDir, pkg.target);
         if (!existsSync(tmpDir)) {
           await download(pkg.target, tmpDir);
         }
 
         await decompress(tmpDir, packageDir, { strip: 1 });
         await copyJARToDir(packageDir, libDir);
-        
       }
     }
   }
 
   /**
    * Download list of package and it's depenencies to `dist` package
-   * @param dist directory destination 
+   * @param dist directory destination
    * @param pkg package to install
    * @param deps dependencies
    */
