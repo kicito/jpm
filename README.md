@@ -15,7 +15,7 @@ $ npm install -g @jolie/jpm
 $ jpm COMMAND
 running command...
 $ jpm (--version)
-@jolie/jpm/2.1.2 linux-x64 node-v18.14.0
+@jolie/jpm/2.1.2 linux-x64 node-v16.19.1
 $ jpm --help [COMMAND]
 USAGE
   $ jpm COMMAND
@@ -24,21 +24,21 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`jpm help [COMMAND]`](#jpm-help-command)
+* [`jpm help [COMMANDS]`](#jpm-help-commands)
 * [`jpm init`](#jpm-init)
 * [`jpm install [TARGET]`](#jpm-install-target)
 * [`jpm remove [TARGET]`](#jpm-remove-target)
 
-## `jpm help [COMMAND]`
+## `jpm help [COMMANDS]`
 
 Display help for jpm.
 
 ```
 USAGE
-  $ jpm help [COMMAND] [-n]
+  $ jpm help [COMMANDS] [-n]
 
 ARGUMENTS
-  COMMAND  Command to show help for.
+  COMMANDS  Command to show help for.
 
 FLAGS
   -n, --nested-commands  Include all nested commands in the output.
@@ -47,7 +47,7 @@ DESCRIPTION
   Display help for jpm.
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.12/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.2.9/src/commands/help.ts)_
 
 ## `jpm init`
 
@@ -116,9 +116,7 @@ ARGUMENTS
 
 DESCRIPTION
   Remove Jolie related dependency to the project
-
   Currently, it removes the corresponding entry on package.json file and perform install command
-
 
 
 EXAMPLES
