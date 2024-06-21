@@ -15,7 +15,7 @@ $ npm install -g @jolie/jpm
 $ jpm COMMAND
 running command...
 $ jpm (--version)
-@jolie/jpm/2.1.3 linux-x64 node-v16.19.1
+@jolie/jpm/3.0.0 linux-x64 node-v20.12.1
 $ jpm --help [COMMAND]
 USAGE
   $ jpm COMMAND
@@ -25,9 +25,9 @@ USAGE
 # Commands
 <!-- commands -->
 * [`jpm help [COMMANDS]`](#jpm-help-commands)
-* [`jpm init`](#jpm-init)
-* [`jpm install [TARGET]`](#jpm-install-target)
-* [`jpm remove [TARGET]`](#jpm-remove-target)
+* [`jpm init [PATH]`](#jpm-init-path)
+* [`jpm install TARGET`](#jpm-install-target)
+* [`jpm remove TARGET`](#jpm-remove-target)
 
 ## `jpm help [COMMANDS]`
 
@@ -35,10 +35,10 @@ Display help for jpm.
 
 ```
 USAGE
-  $ jpm help [COMMANDS] [-n]
+  $ jpm help [COMMANDS...] [-n]
 
 ARGUMENTS
-  COMMANDS  Command to show help for.
+  COMMANDS...  Command to show help for.
 
 FLAGS
   -n, --nested-commands  Include all nested commands in the output.
@@ -47,15 +47,18 @@ DESCRIPTION
   Display help for jpm.
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.2.9/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.2.20/src/commands/help.ts)_
 
-## `jpm init`
+## `jpm init [PATH]`
 
 Generate jpm's specific configuration to package.json
 
 ```
 USAGE
-  $ jpm init
+  $ jpm init [PATH...]
+
+ARGUMENTS
+  PATH...  Target package
 
 DESCRIPTION
   Generate jpm's specific configuration to package.json
@@ -68,21 +71,22 @@ EXAMPLES
       add jpm related fields to package.json in specify path
 ```
 
-_See code: [dist/commands/init.ts](https://github.com/jolie/jpm/blob/v2.1.3/dist/commands/init.ts)_
+_See code: [src/commands/init.ts](https://github.com/jolie/jpm/blob/v3.0.0/src/commands/init.ts)_
 
-## `jpm install [TARGET]`
+## `jpm install TARGET`
 
 Add Jolie related dependency to the project
 
 ```
 USAGE
-  $ jpm install [TARGET] [-r mvn|npm]
+  $ jpm install TARGET [-r mvn|npm]
 
 ARGUMENTS
   TARGET  Target package
 
 FLAGS
-  -r, --repo=(mvn|npm)  specify the lookup repository
+  -r, --repo=<option>  specify the lookup repository
+                       <options: mvn|npm>
 
 DESCRIPTION
   Add Jolie related dependency to the project
@@ -101,15 +105,15 @@ EXAMPLES
   add jolie-jsoup with latest tag into the project
 ```
 
-_See code: [dist/commands/install.ts](https://github.com/jolie/jpm/blob/v2.1.3/dist/commands/install.ts)_
+_See code: [src/commands/install.ts](https://github.com/jolie/jpm/blob/v3.0.0/src/commands/install.ts)_
 
-## `jpm remove [TARGET]`
+## `jpm remove TARGET`
 
 Remove Jolie related dependency to the project
 
 ```
 USAGE
-  $ jpm remove [TARGET]
+  $ jpm remove TARGET
 
 ARGUMENTS
   TARGET  Target package
@@ -124,5 +128,5 @@ EXAMPLES
       Remove jolie-jsoup from the dependencies
 ```
 
-_See code: [dist/commands/remove.ts](https://github.com/jolie/jpm/blob/v2.1.3/dist/commands/remove.ts)_
+_See code: [src/commands/remove.ts](https://github.com/jolie/jpm/blob/v3.0.0/src/commands/remove.ts)_
 <!-- commandsstop -->
