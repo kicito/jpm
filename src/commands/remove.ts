@@ -1,11 +1,11 @@
-import { Command } from '@oclif/core';
-import { ERR_NOT_JPM_PACKAGE } from '../errors';
-import PackageJSON from '../packageJSON';
+import { Command, Args } from '@oclif/core';
 import { existsSync, rmSync } from 'node:fs';
 import { join } from 'path';
-import Install from './install';
-import LocalProject from '../mvn/local_project';
+import { ERR_NOT_JPM_PACKAGE } from '../errors';
 import { buildProjectFromTarget, guessRepo } from '../lib';
+import LocalProject from '../mvn/local_project';
+import PackageJSON from '../packageJSON';
+import Install from './install';
 
 export default class Remove extends Command {
   static override description = `Remove Jolie related dependency to the project
@@ -17,7 +17,9 @@ export default class Remove extends Command {
     Remove jolie-jsoup from the dependencies`,
   ];
 
-  static override args = [{ name: 'target', description: 'Target package', require: true }];
+  static override args = {
+    target: Args.string({ description: 'Target package', required: true }),
+  };
 
   public async run(): Promise<void> {
     const packageJSON = new PackageJSON();
@@ -46,6 +48,5 @@ export default class Remove extends Command {
     this.log(`Removed ${target}`);
 
     await Install.run([]);
-
   }
 }

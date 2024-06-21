@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Command, Flags } from '@oclif/core';
+import { Args, Command, Flags } from '@oclif/core';
 
 import { Project } from '../mvn';
 import { Package } from '../npm';
@@ -18,6 +18,12 @@ type InstallTargetOptions = {
   repo: RepoType;
 };
 
+const flag = Flags.custom<RepoType>({
+      char: 'r',
+      description: 'specify the lookup repository',
+      options: ['mvn', 'npm'],
+});
+
 export default class Install extends Command {
   static override description = 'Add Jolie related dependency to the project';
 
@@ -33,14 +39,13 @@ add jolie-jsoup with latest tag into the project`,
   ];
 
   static override flags = {
-    repo: Flags.enum<RepoType>({
-      char: 'r',
-      description: 'specify the lookup repository',
-      options: ['mvn', 'npm'],
+    repo: flag({
     }),
   };
 
-  static override args = [{ name: 'target', description: 'Target package' }];
+  static override args = {
+    target: Args.string({ description: 'Target package', required: true }),
+  };
 
   /**
    * Read content from package.json
@@ -198,12 +203,12 @@ add jolie-jsoup with latest tag into the project`,
   }
 
   async run(): Promise<void> {
-    const { args } = await this.parse(Install);
+    const { args, flags } = await this.parse(Install);
 
-    if (args['target']) {
+    if (args.target) {
       await this.installWithTarget(
-        args['target'],
-        args['repo'] ? { repo: args['repo'] } : undefined
+        args.target,
+        flags.repo ? { repo: flags.repo } : undefined
       );
     } else {
       await this.install();
