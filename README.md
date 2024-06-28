@@ -26,7 +26,7 @@ USAGE
 <!-- commands -->
 * [`jpm help [COMMANDS]`](#jpm-help-commands)
 * [`jpm init [PATH]`](#jpm-init-path)
-* [`jpm install TARGET`](#jpm-install-target)
+* [`jpm install [TARGET]`](#jpm-install-target)
 * [`jpm remove TARGET`](#jpm-remove-target)
 
 ## `jpm help [COMMANDS]`
@@ -73,13 +73,13 @@ EXAMPLES
 
 _See code: [src/commands/init.ts](https://github.com/jolie/jpm/blob/v3.0.1/src/commands/init.ts)_
 
-## `jpm install TARGET`
+## `jpm install [TARGET]`
 
 Add Jolie related dependency to the project
 
 ```
 USAGE
-  $ jpm install TARGET [-r mvn|npm]
+  $ jpm install [TARGET] [-r mvn|npm]
 
 ARGUMENTS
   TARGET  Target package
