@@ -44,7 +44,7 @@ add jolie-jsoup with latest tag into the project`,
   };
 
   static override args = {
-    target: Args.string({ description: 'Target package', required: true }),
+    target: Args.string({ description: 'Target package' }),
   };
 
   /**
