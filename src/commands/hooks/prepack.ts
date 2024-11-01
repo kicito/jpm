@@ -4,6 +4,7 @@ import { join } from 'path';
 import { which, exec } from 'shelljs';
 import { ERR_MVN_NOT_FOUND } from '../../errors';
 import glob from '../../glob';
+import { isWindows } from '../../lib';
 
 export default class HooksPrePack extends Command {
   static override hidden = true;
@@ -18,7 +19,7 @@ export default class HooksPrePack extends Command {
   static override examples = ['jpm hooks prepack'];
 
   public async run(): Promise<void> {
-    const matches = await glob(join(process.cwd(), '**', 'pom.xml'));
+    const matches = await glob(join(process.cwd(), '**', 'pom.xml'), {windowsPathsNoEscape: isWindows()});
 
     for (const match of matches) {
       this.log(
