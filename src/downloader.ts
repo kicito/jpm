@@ -5,6 +5,7 @@ import fetch from 'node-fetch';
 import { basename, join } from 'node:path';
 import glob from './glob';
 import { mkdirIfNotExist } from './fs';
+import { isWindows } from './lib';
 
 const streamPipeline = util.promisify(pipeline);
 
@@ -31,7 +32,7 @@ export async function download(url: string, location: string): Promise<void> {
  */
 export async function copyJARToDir(baseDir: string, targetDir: string) {
 
-  const matches = await glob(join(baseDir, '**/*.jar'));
+  const matches = await glob(join(baseDir, '**/*.jar'), {windowsPathsNoEscape: isWindows()});
 
   mkdirIfNotExist(targetDir);
 

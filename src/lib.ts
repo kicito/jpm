@@ -5,6 +5,8 @@ import { existsSync } from 'node:fs';
 
 export type RepoType = 'mvn' | 'npm' | 'local'
 
+
+
 const isLocalDir = (target: string): boolean => {
     return existsSync(target);
 };
@@ -38,4 +40,8 @@ export const buildProjectFromTarget = (target: string): Project => {
 
 export const buildPackageFromTarget = (target: string): Package => {
     return new Package(target);
+};
+
+export const isWindows = (): boolean => {
+    return process.platform === 'win32'|| /^(msys|cygwin)/.test(process.env['OSTYPE'] || '');
 };
