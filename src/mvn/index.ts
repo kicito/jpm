@@ -1,7 +1,4 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-namespace */
-/* eslint-disable no-use-before-define */
-import '../@types';
 import pomParser from 'pom-parser';
 import Project from './project';
 import debug from 'debug';

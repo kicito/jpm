@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { parsePom, Project } from '.';
 // import debug from 'debug'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Args, Command, Flags } from '@oclif/core';
 
 import { Project } from '../mvn';

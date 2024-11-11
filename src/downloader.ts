@@ -3,7 +3,7 @@ import { copyFileSync, createWriteStream } from 'node:fs';
 import { pipeline } from 'node:stream';
 import fetch from 'node-fetch';
 import { basename, join } from 'node:path';
-import glob from './glob';
+import {glob} from 'glob';
 import { mkdirIfNotExist } from './fs';
 import { isWindows } from './lib';
 

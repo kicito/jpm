@@ -38,7 +38,7 @@ class MVNLocalRepo {
     try {
       accessSync(join(this.#buildProjectPath(project), project.getPOMName()), constants.R_OK);
       return true;
-    } catch (e) {
+    } catch (_) {
       return false;
     }
   }

@@ -1,7 +1,7 @@
 {
-  "require": ["test/helpers/init.js", "ts-node/register"],
+  "import": ["tsx"],
   "watch-extensions": ["ts"],
   "recursive": true,
   "reporter": "spec",
-  "timeout": 60000
+  "timeout": 5000
 }

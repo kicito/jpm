@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import decompress from 'decompress';
 import fetch from 'node-fetch';
 import { tmpdir } from 'node:os';

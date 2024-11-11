@@ -1,4 +1,3 @@
-/* eslint-disable no-use-before-define */
 export type JSONSchemaForNPMPackageJsonWithJolieSPackageManager = JSONSchemaForNPMPackageJsonWithJolieSPackageManager1 &
   JSONSchemaForNPMPackageJsonWithJolieSPackageManager2
 export type JSONSchemaForNPMPackageJsonWithJolieSPackageManager1 = {
@@ -138,7 +137,7 @@ export interface JSONSchemaForNPMPackageJsonWithJolieSPackageManager2 {
     /**
      * The module path that is resolved when the module specifier matches "name", shadows the "main" field.
      */
-    '.'?: PackageExportsEntry | PackageExportsFallback
+    '.': PackageExportsEntry | PackageExportsFallback
     /**
      * The module path prefix that is resolved when the module specifier starts with "name/", set to "./*" to allow external modules to import any subpath.
      *
@@ -245,69 +244,69 @@ export interface JSONSchemaForNPMPackageJsonWithJolieSPackageManager2 {
    * The 'scripts' member is an object hash of script commands that are run at various times in the lifecycle of your package. The key is the lifecycle event, and the value is the command to run at that point.
    */
   scripts?: {
-    /**
-     * Run code quality tools, e.g. ESLint, TSLint, etc.
-     */
-    lint?: string
-    /**
-     * Run BEFORE the package is published (Also run on local npm install without any arguments).
-     */
-    prepublish?: string
-    /**
-     * Run both BEFORE the package is packed and published, and on local npm install without any arguments. This is run AFTER prepublish, but BEFORE prepublishOnly.
-     */
-    prepare?: string
-    /**
-     * Run BEFORE the package is prepared and packed, ONLY on npm publish.
-     */
-    prepublishOnly?: string
-    /**
-     * run BEFORE a tarball is packed (on npm pack, npm publish, and when installing git dependencies).
-     */
-    prepack?: string
-    /**
-     * Run AFTER the tarball has been generated and moved to its final destination.
-     */
-    postpack?: string
-    /**
-     * Publishes a package to the registry so that it can be installed by name. See https://docs.npmjs.com/cli/v8/commands/npm-publish
-     */
-    publish?: string
-    postpublish?: ScriptsPublishAfter
-    /**
-     * Run BEFORE the package is installed.
-     */
-    preinstall?: string
-    install?: ScriptsInstallAfter
-    postinstall?: ScriptsInstallAfter
-    preuninstall?: ScriptsUninstallBefore
-    uninstall?: ScriptsUninstallBefore
-    /**
-     * Run AFTER the package is uninstalled.
-     */
-    postuninstall?: string
-    preversion?: ScriptsVersionBefore
-    version?: ScriptsVersionBefore
-    /**
-     * Run AFTER bump the package version.
-     */
-    postversion?: string
-    pretest?: ScriptsTest
-    test?: ScriptsTest
-    posttest?: ScriptsTest
-    prestop?: ScriptsStop
-    stop?: ScriptsStop
-    poststop?: ScriptsStop
-    prestart?: ScriptsStart
-    start?: ScriptsStart
-    poststart?: ScriptsStart
-    prerestart?: ScriptsRestart
-    restart?: ScriptsRestart
-    postrestart?: ScriptsRestart
-    /**
-     * Start dev server to serve application files
-     */
-    serve?: string
+    // /**
+    //  * Run code quality tools, e.g. ESLint, TSLint, etc.
+    //  */
+    // lint?: string | undefined
+    // /**
+    //  * Run BEFORE the package is published (Also run on local npm install without any arguments).
+    //  */
+    // prepublish?: string
+    // /**
+    //  * Run both BEFORE the package is packed and published, and on local npm install without any arguments. This is run AFTER prepublish, but BEFORE prepublishOnly.
+    //  */
+    // prepare?: string
+    // /**
+    //  * Run BEFORE the package is prepared and packed, ONLY on npm publish.
+    //  */
+    // prepublishOnly?: string
+    // /**
+    //  * run BEFORE a tarball is packed (on npm pack, npm publish, and when installing git dependencies).
+    //  */
+    // prepack?: string
+    // /**
+    //  * Run AFTER the tarball has been generated and moved to its final destination.
+    //  */
+    // postpack?: string
+    // /**
+    //  * Publishes a package to the registry so that it can be installed by name. See https://docs.npmjs.com/cli/v8/commands/npm-publish
+    //  */
+    // publish?: string
+    // postpublish?: ScriptsPublishAfter
+    // /**
+    //  * Run BEFORE the package is installed.
+    //  */
+    // preinstall?: string
+    // install?: ScriptsInstallAfter
+    // postinstall?: ScriptsInstallAfter
+    // preuninstall?: ScriptsUninstallBefore
+    // uninstall?: ScriptsUninstallBefore
+    // /**
+    //  * Run AFTER the package is uninstalled.
+    //  */
+    // postuninstall?: string
+    // preversion?: ScriptsVersionBefore
+    // version?: ScriptsVersionBefore
+    // /**
+    //  * Run AFTER bump the package version.
+    //  */
+    // postversion?: string
+    // pretest?: ScriptsTest
+    // test?: ScriptsTest
+    // posttest?: ScriptsTest
+    // prestop?: ScriptsStop
+    // stop?: ScriptsStop
+    // poststop?: ScriptsStop
+    // prestart?: ScriptsStart
+    // start?: ScriptsStart
+    // poststart?: ScriptsStart
+    // prerestart?: ScriptsRestart
+    // restart?: ScriptsRestart
+    // postrestart?: ScriptsRestart
+    // /**
+    //  * Start dev server to serve application files
+    //  */
+    // serve?: string
     [k: string]: string
   }
   /**
@@ -351,7 +350,7 @@ export interface JSONSchemaForNPMPackageJsonWithJolieSPackageManager2 {
    */
   packageManager?: string
   engines?: {
-    node?: string
+    // node?: string
     [k: string]: string
   }
   engineStrict?: boolean
@@ -393,8 +392,8 @@ export interface JSONSchemaForNPMPackageJsonWithJolieSPackageManager2 {
   esnext?:
   | string
   | {
-    main?: string
-    browser?: string
+    // main?: string
+    // browser?: string
     [k: string]: string
   }
   /**
@@ -428,7 +427,7 @@ export interface JSONSchemaForNPMPackageJsonWithJolieSPackageManager2 {
      * Jolie related tools version this project runs on
      */
     engines?: {
-      jolie?: string
+      // jolie?: string
       [k: string]: string
     }
     engineStrict?: boolean
