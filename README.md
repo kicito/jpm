@@ -15,7 +15,7 @@ $ npm install -g @jolie/jpm
 $ jpm COMMAND
 running command...
 $ jpm (--version)
-@jolie/jpm/3.0.3 linux-x64 node-v20.17.0
+@jolie/jpm/3.0.4 linux-x64 node-v20.17.0
 $ jpm --help [COMMAND]
 USAGE
   $ jpm COMMAND
@@ -24,30 +24,9 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`jpm help [COMMANDS]`](#jpm-help-commands)
 * [`jpm init [PATH]`](#jpm-init-path)
 * [`jpm install [TARGET]`](#jpm-install-target)
 * [`jpm remove TARGET`](#jpm-remove-target)
-
-## `jpm help [COMMANDS]`
-
-Display help for jpm.
-
-```
-USAGE
-  $ jpm help [COMMANDS...] [-n]
-
-ARGUMENTS
-  COMMANDS...  Command to show help for.
-
-FLAGS
-  -n, --nested-commands  Include all nested commands in the output.
-
-DESCRIPTION
-  Display help for jpm.
-```
-
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.2.20/src/commands/help.ts)_
 
 ## `jpm init [PATH]`
 
@@ -71,7 +50,7 @@ EXAMPLES
       add jpm related fields to package.json in specify path
 ```
 
-_See code: [src/commands/init.ts](https://github.com/jolie/jpm/blob/v3.0.3/src/commands/init.ts)_
+_See code: [src/commands/init.ts](https://github.com/jolie/jpm/blob/v3.0.4/src/commands/init.ts)_
 
 ## `jpm install [TARGET]`
 
@@ -105,7 +84,7 @@ EXAMPLES
   add jolie-jsoup with latest tag into the project
 ```
 
-_See code: [src/commands/install.ts](https://github.com/jolie/jpm/blob/v3.0.3/src/commands/install.ts)_
+_See code: [src/commands/install.ts](https://github.com/jolie/jpm/blob/v3.0.4/src/commands/install.ts)_
 
 ## `jpm remove TARGET`
 
@@ -128,5 +107,5 @@ EXAMPLES
       Remove jolie-jsoup from the dependencies
 ```
 
-_See code: [src/commands/remove.ts](https://github.com/jolie/jpm/blob/v3.0.3/src/commands/remove.ts)_
+_See code: [src/commands/remove.ts](https://github.com/jolie/jpm/blob/v3.0.4/src/commands/remove.ts)_
 <!-- commandsstop -->
